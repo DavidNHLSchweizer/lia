@@ -80,65 +80,65 @@ def test_is_not_on_vline():
 #--- linevector tests
 def test_init_line_vector2D():
     LV = LineVector([1,2], [2,3])
-    assert np.array_equiv(LV.V1, [1,2])    
-    assert np.array_equiv(LV.V2, [2,3])
+    assert np.array_equiv(LV.P, [1,2])    
+    assert np.array_equiv(LV.R, [2,3])
     assert LV.dim() == 2
 def test_init_line_vector3D():
     LV = LineVector([1,2,3], [2.5,3.5,4.5])
-    assert np.array_equiv(LV.V1, [1,2,3])    
-    assert np.array_equiv(LV.V2, [2.5,3.5,4.5])
+    assert np.array_equiv(LV.P, [1,2,3])    
+    assert np.array_equiv(LV.R, [2.5,3.5,4.5])
     assert LV.dim() == 3
 def test_init_line_vector_invalid():
     with pytest.raises(LineInvalidException):
         LineVector([0,1], [1,2,3])
-def _test_str_line_vector2D(V1,V2):
-    L = LineVector(V1,V2)
-    assert str(L) == f'V = {L.V1[0],L.V1[1]} + {lamda}{L.V2[0],L.V2[1]}'
+def _test_str_line_vector2D(P,R):
+    L = LineVector(P,R)
+    assert str(L) == f'V = {L.P[0],L.P[1]} + {lamda}{L.R[0],L.R[1]}'
 def test_str_line_vector2D():
-    for (V1,V2) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_str_line_vector2D(V1,V2)
-def _test_str_line_vector3D(V1,V2):
-    L = LineVector(V1,V2)
-    assert str(L) == f'V = {L.V1[0],L.V1[1],L.V1[2]} + {lamda}{L.V2[0],L.V2[1],L.V2[2]}'
+    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
+        _test_str_line_vector2D(P,R)
+def _test_str_line_vector3D(P,R):
+    L = LineVector(P,R)
+    assert str(L) == f'V = {L.P[0],L.P[1],L.P[2]} + {lamda}{L.R[0],L.R[1],L.R[2]}'
 def test_str_line_vector3D():
-    for (V1,V2) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
+    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
                         [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_str_line_vector3D(V1,V2)
-def _test_labda_values(V1, V2, test_values):
-    LV = LineVector(V1, V2)
+        _test_str_line_vector3D(P,R)
+def _test_labda_values(P, R, test_values):
+    LV = LineVector(P, R)
     for l in test_values:
-        assert np.array_equiv(LV.V(l), [V1[i]+l*V2[i] for i in range(LV.dim())])
+        assert np.array_equiv(LV.V(l), [P[i]+l*R[i] for i in range(LV.dim())])
 def test_labda_values2D():
     _test_labda_values([1,2], [2,3], [-1, -.5, 0, .5, 1])
 def test_labda_values3D():
     _test_labda_values([1,2,3], [2,3, -1], [-1, -.5, 0, .5, 1])
-def _test_labdas(V1, V2, test_values):
-    LV = LineVector(V1, V2)
+def _test_labdas(P, R, test_values):
+    LV = LineVector(P, R)
     for l in test_values:
         vv = LV.V(l)
         ll = LV.labda(vv)
         assert round(LV.labda(vv),6) == round(l, 6)
 def test_labdas2D():
-    for (V1,V2) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_labdas(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
+        _test_labdas(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
 def test_labdas3D():
-    for (V1,V2) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
+    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
                         [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_labdas(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
-def _test_is_on_line_vector(V1,V2,test_values):
-    LV = LineVector(V1, V2)
+        _test_labdas(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+def _test_is_on_line_vector(P,R,test_values):
+    LV = LineVector(P, R)
     for l in test_values:
         v = LV.V(l)
         assert LV.is_on_line(v)
 def test_is_on_line2D():
-    for (V1,V2) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_is_on_line_vector(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
+        _test_is_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
 def test_is_on_line3D():
-    for (V1,V2) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
+    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
                         [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_is_on_line_vector(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
-def _test_is_not_on_line_vector(V1,V2,test_values):
-    LV = LineVector(V1, V2)
+        _test_is_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+def _test_is_not_on_line_vector(P,R,test_values):
+    LV = LineVector(P, R)
     for l in test_values:
         v = LV.V(l)
         v0 = v.copy()
@@ -146,12 +146,12 @@ def _test_is_not_on_line_vector(V1,V2,test_values):
             v[r] = v[r]+1
         assert not LV.is_on_line(v)
 def test_is_not_on_line2D():
-    for (V1,V2) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_is_not_on_line_vector(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
+        _test_is_not_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
 def test_is_not_on_line3D():
-    for (V1,V2) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
+    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
                         [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_is_not_on_line_vector(V1,V2, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+        _test_is_not_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
 def __test_angle(LV1, LV2, expected_angle, degrees = True):
     assert round(LV1.angle(LV2,degrees),6) == round(expected_angle,6)
     assert round(LV2.angle(LV1, degrees),6) == round(expected_angle,6)
@@ -169,13 +169,13 @@ def test_angles():
     _test_angle(LV1, LineVector([42,42], [0, 1]), 90)
     _test_angle(LV1, LineVector([42,42], [-.5*math.sqrt(2), .5*math.sqrt(2)]), 135)
     _test_angle(LV1, LineVector([42,42], [-1, 0]), 180)
-def _test_normal_vector(V2):
-    LV = LineVector([1,1],V2)
+def _test_normal_vector(R):
+    LV = LineVector([1,1],R)
     NV = LV.normal_vector()
-    assert round(np.inner(NV, LV.V2),6) == 0
+    assert round(np.inner(NV, LV.R),6) == 0
 def test_normal_vector_normal():
-    for V2 in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:
-        _test_normal_vector(V2)
+    for R in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:
+        _test_normal_vector(R)
 def test_normal_vector_vertical():
     _test_normal_vector([1,0])
 
@@ -187,8 +187,8 @@ def _test_line_convertor_vector_from_line(a, b, expected_V1, expected_V2):
     LC = LineConvertor()
     line = Line(a,b)
     vector = LC.vector_from_line(line)
-    assert np.array_equiv(vector.V1, expected_V1)
-    assert np.array_equiv(vector.V2, expected_V2)
+    assert np.array_equiv(vector.P, expected_V1)
+    assert np.array_equiv(vector.R, expected_V2)
 def test_line_convertor_vector_from_line():
     _test_line_convertor_vector_from_line(1,1, [-1,0], [1,1])
     _test_line_convertor_vector_from_line(-1,1, [1,0], [1,-1])
@@ -198,11 +198,11 @@ def test_line_convertor_vector_from_vline():
     LC = LineConvertor()
     line = VerticalLine(42)
     vector = LC.vector_from_line(line)
-    assert np.array_equiv(vector.V1, [42,0])
-    assert np.array_equiv(vector.V2, [0,1])
-def _test_line_convertor_line_from_vector(V1, V2, expected_a, expected_b):
+    assert np.array_equiv(vector.P, [42,0])
+    assert np.array_equiv(vector.R, [0,1])
+def _test_line_convertor_line_from_vector(P, R, expected_a, expected_b):
     LC = LineConvertor()
-    vector = LineVector(V1,V2)
+    vector = LineVector(P,R)
     line = LC.line_from_vector(vector)
     assert line.a == expected_a
     assert line.b == expected_b
