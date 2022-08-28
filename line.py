@@ -77,7 +77,12 @@ class LineVector:
     def angle(self, LV2: LineVector, degrees = True)->float:
         angle_in_radians = math.acos((np.inner(self.V2,LV2.V2)/(np.linalg.norm(self.V2)*np.linalg.norm(LV2.V2))))
         return angle_in_radians if not degrees else angle_in_radians * 180 / math.pi
-
+    def normal_vector(self)->np.array:
+        if self.V2[1] == 0:
+            return np.array([0,1])
+        else:
+            return np.array([1,-self.V2[0]/self.V2[1]])
+            
 class LineConvertor:    
     def vector_from_line(self, l: Line)->LineVector:
         if isinstance(l, VerticalLine):

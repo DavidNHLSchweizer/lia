@@ -169,6 +169,15 @@ def test_angles():
     _test_angle(LV1, LineVector([42,42], [0, 1]), 90)
     _test_angle(LV1, LineVector([42,42], [-.5*math.sqrt(2), .5*math.sqrt(2)]), 135)
     _test_angle(LV1, LineVector([42,42], [-1, 0]), 180)
+def _test_normal_vector(V2):
+    LV = LineVector([1,1],V2)
+    NV = LV.normal_vector()
+    assert round(np.inner(NV, LV.V2),6) == 0
+def test_normal_vector_normal():
+    for V2 in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:
+        _test_normal_vector(V2)
+def test_normal_vector_vertical():
+    _test_normal_vector([1,0])
 
 #--- lineconvertor tests
 def test_init_line_convertor():
@@ -208,4 +217,3 @@ def test_line_convertor_vline_from_vector():
     assert isinstance(line, VerticalLine)
     assert line.b == 42
 
-    # _test_line_convertor_line_from_vector([0,1], [0,1], 0,1)
