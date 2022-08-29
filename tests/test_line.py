@@ -1,7 +1,8 @@
 import pytest
 import math
 import numpy as np
-from line import Line, VerticalLine, LineVector, LineConvertor, LineInvalidException, lamda
+from lia import lamda, PRECISION
+from line import Line, VerticalLine, LineVector, LineConvertor, LineInvalidException
 
 
 #--- line tests
@@ -91,6 +92,12 @@ def test_init_line_vector3D():
 def test_init_line_vector_invalid():
     with pytest.raises(LineInvalidException):
         LineVector([0,1], [1,2,3])
+def test_init_line_vector_invalid_zero2D():
+    with pytest.raises(LineInvalidException):
+        LineVector([0,1], [0,0])
+def test_init_line_vector_invalid_zero3D():
+    with pytest.raises(LineInvalidException):
+        LineVector([0,1,2], [0,0,0])
 def _test_str_line_vector2D(P,R):
     L = LineVector(P,R)
     assert str(L) == f'V = {L.P[0],L.P[1]} + {lamda}{L.R[0],L.R[1]}'
@@ -117,7 +124,7 @@ def _test_labdas(P, R, test_values):
     for l in test_values:
         vv = LV.V(l)
         ll = LV.labda(vv)
-        assert round(LV.labda(vv),6) == round(l, 6)
+        assert round(LV.labda(vv),PRECISION) == round(l, PRECISION)
 def test_labdas2D():
     for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
         _test_labdas(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
@@ -153,8 +160,8 @@ def test_is_not_on_line3D():
                         [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
         _test_is_not_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
 def __test_angle(LV1, LV2, expected_angle, degrees = True):
-    assert round(LV1.angle(LV2,degrees),6) == round(expected_angle,6)
-    assert round(LV2.angle(LV1, degrees),6) == round(expected_angle,6)
+    assert round(LV1.angle(LV2,degrees),PRECISION) == round(expected_angle,PRECISION)
+    assert round(LV2.angle(LV1, degrees),PRECISION) == round(expected_angle,PRECISION)
 def _test_angle(LV1, LV2, expected_angle):
     __test_angle(LV1, LV2, expected_angle)
     __test_angle(LV1, LV2, expected_angle * math.pi/180, False)
@@ -172,7 +179,7 @@ def test_angles():
 def _test_normal_vector(R):
     LV = LineVector([1,1],R)
     NV = LV.normal_vector()
-    assert round(np.inner(NV, LV.R),6) == 0
+    assert round(np.inner(NV, LV.R),PRECISION) == 0
 def test_normal_vector_normal():
     for R in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:
         _test_normal_vector(R)

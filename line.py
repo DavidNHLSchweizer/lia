@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
-import math
-lamda= '\u03BB'
+from lia import lamda, angle, PRECISION
+
 class LineInvalidException(Exception):
     pass
 
@@ -51,6 +51,8 @@ class LineVector:
     def __init__(self, P:list[float], R:list[float]):
         if len(P) != len(R):
             raise LineInvalidException('dimension vectors not equal')
+        if round(np.linalg.norm(R), PRECISION) == 0:
+            raise LineInvalidException(f'invalid line vector {R}')
         self._P = np.array(P)
         self._R = np.array(R)
     def __str__(self):
@@ -75,8 +77,7 @@ class LineVector:
     def is_on_line(self, V)->bool:
         return self.labda(V) is not None
     def angle(self, LV2: LineVector, degrees = True)->float:
-        angle_in_radians = math.acos((np.inner(self.R,LV2.R)/(np.linalg.norm(self.R)*np.linalg.norm(LV2.R))))
-        return angle_in_radians if not degrees else angle_in_radians * 180 / math.pi
+        return angle(self.R, LV2.R, degrees)
     def normal_vector(self)->np.array:
         if self.R[1] == 0:
             return np.array([0,1])
@@ -91,7 +92,7 @@ class LineConvertor:
             return LineVector([0,l.b], [1,0])
         else:
             return LineVector([-l.b/l.a,0], [1,l.a])
-    def line_from_vector(self, LV: LineVector)->Line:
+    def line_from_vector(self, LV: LineVector)->LineBase:
         if LV.R[0] == 0:
             return VerticalLine(LV.P[0])
         else:
