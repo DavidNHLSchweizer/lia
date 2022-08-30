@@ -28,6 +28,23 @@ class Plane:
         return f'{self.a}x + {self.b}y + {self.c}z = {self.d}'
     def normal_vector(self):
         return np.array([self.a,self.b,self.c])
+    def x(self, y: float, z: float)->float:
+        if round(self.a,PRECISION) == 0:
+            return None
+        else:
+            return (self.d - self.b*y - self.c*z) / self.a
+    def y(self, x: float, z: float)->float:
+        if round(self.b,PRECISION) == 0:
+            return None
+        else:
+            return (self.d - self.a*x - self.c*z) / self.b
+    def z(self, x: float, y: float)->float:
+        if round(self.c,PRECISION) == 0:
+            return None
+        else:
+            return (self.d - self.a*x - self.b*y) / self.c
+    def is_on_plane(self, x: float, y: float, z: float)->bool:
+        return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
 
 class PlaneVector:
     def __init__(self, P:list[float], R1:list[float], R2:list[float]):
@@ -74,18 +91,18 @@ class PlaneConvertor:
         matrix = PV.as_matrix()
     
 
-PC=PlaneConvertor()
-P = Plane(-1, 2, -2, 6)
-PV = PC.plane_vector_from_plane(P)
-print(PV)
+# PC=PlaneConvertor()
+# P = Plane(-1, 2, -2, 6)
+# PV = PC.plane_vector_from_plane(P)
+# print(PV)
 
-def plm(PV, l, m):
-    print(f'{lamda}:{l} {mu}:{m} \t{PV.V(l,m)}')    
-P = Plane(2, 3, 0, 5)
-PV = PC.plane_vector_from_plane(P)
-print(PV)
-plm(PV, 0,0)
-plm(PV, 1,0)
-plm(PV, 0, 1)
-plm(PV, .5,.5)
-plm(PV, 1, 1)
+# def plm(PV, l, m):
+#     print(f'{lamda}:{l} {mu}:{m} \t{PV.V(l,m)}')    
+# P = Plane(2, 3, 0, 5)
+# PV = PC.plane_vector_from_plane(P)
+# print(PV)
+# plm(PV, 0,0)
+# plm(PV, 1,0)
+# plm(PV, 0, 1)
+# plm(PV, .5,.5)
+# plm(PV, 1, 1)

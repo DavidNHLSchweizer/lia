@@ -31,7 +31,7 @@ class Line(LineBase):
         if self.a == 0:
             raise LineInvalidException('horizontal line')
         return (y-self.b)/self.a
-    def is_on_line(self, x, y)->bool:
+    def is_on_line(self, x: float, y: float)->bool:
         return self.y(x) == y 
 class VerticalLine(LineBase):
     #x = b    
@@ -43,7 +43,7 @@ class VerticalLine(LineBase):
         raise LineInvalidException('vertical line')
     def x(self, y: float)->float:
         return self.b
-    def is_on_line(self, x, y)->bool:
+    def is_on_line(self, x: float, y: float)->bool:
         return x == self.b
 
 class LineVector:

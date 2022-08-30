@@ -4,6 +4,13 @@ import numpy as np
 from lia import lamda, mu
 from plane import Plane, PlaneInvalidException, PlaneVector
 
+T_VALUES = [
+            (1,2,3,4),    
+            (1,-2,3,0),
+            (0,2,0,2),    
+            (42,0,0,42),    
+            (0,0,42,0),    
+        ]
 #plane tests
 def _test_init_plane(a,b,c,d):
     P = Plane(a,b,c,d)
@@ -13,15 +20,8 @@ def _test_init_plane(a,b,c,d):
     assert P.d == d
     assert str(P) == f'{P.a}x + {P.b}y + {P.c}z = {P.d}'
 
-t_values = [
-            (1,2,3,4),    
-            (1,-2,3,0),
-            (0,2,0,2),    
-            (42,0,0,42),    
-            (0,0,42,0),    
-        ]
 def test_init_plane():
-    for (a,b,c,d) in t_values:
+    for (a,b,c,d) in T_VALUES:
         _test_init_plane(a,b,c,d) 
     
 def test_init_plane_invalid():
@@ -33,7 +33,7 @@ def _test_plane_normal_vector(a,b,c,d):
     assert np.array_equiv(P.normal_vector(), [a,b,c])
 
 def test_plane_normal_vector():
-    for (a,b,c,d) in t_values:
+    for (a,b,c,d) in T_VALUES:
         _test_plane_normal_vector(a,b,c,d) 
     
 #plane vector tests

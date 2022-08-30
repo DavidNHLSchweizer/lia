@@ -1,9 +1,15 @@
+import random
 import pytest
+import itertools
 import math
 import numpy as np
 from lia import lamda, PRECISION
 from line import Line, VerticalLine, LineVector, LineConvertor, LineInvalidException
 
+
+_TEST_VALUES = [-1000, -100, -50, -42, -10, -5, -math.pi, -3, -2.5, -2, -1, -.75, -.66666, -.5, -.3, -.2, -.1, -.01, -.0001, 
+                0, 
+                .0001, .01, .1, .2, .3, .5, .66666, .75, 1, 2, 2.5, 3, math.pi, 5, 10, 42, 50, 100, 1000]
 
 #--- line tests
 def test_init_line():
@@ -14,38 +20,39 @@ def _test_str(a,b):
     L = Line(a,b)
     assert str(L) == f'y = {a}x + {b}'
 def test_str_line():
-    for (a,b) in zip([-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2], [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]):
+    for (a,b) in itertools.combinations(_TEST_VALUES, 2):
         _test_str(a,b)
-def _test_x_values(a, b, test_values):
+def _test_x_values(a, b):
     L = Line(a,b)
-    for v in test_values:
+    for v in _TEST_VALUES:
         assert L.y(v) == a * v + b
-def _test_y_values(a, b, test_values):
+def _test_y_values(a, b):
     L = Line(a,b)
-    for v in test_values:
+    for v in _TEST_VALUES:
         assert L.x(v) == (v-b)/a        
 def test_x_values():
-    _test_x_values(1, 2, [-1, -.5, 0, .5, 1])
+    _test_x_values(1, 2)
+    _test_x_values(1, 0)
 def test_x_values_horizontal():
     L = Line(0,3)
     with pytest.raises(LineInvalidException):
         L.x(4)
 def test_y_values():
-    _test_y_values(1, 2, [-1, -.5, 0, .5, 1])
+    _test_y_values(1, 2)
 def _test_is_on_line(a,b):
     L = Line(a,b)
-    for x in [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]:
+    for x in _TEST_VALUES:
         assert(L.is_on_line(x, x * a + b))
 def _test_is_not_on_line(a,b):
     L = Line(a,b)
-    for x in [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]:
+    for x in _TEST_VALUES:
         assert(not L.is_on_line(x, x * a + b-1))
         assert(not L.is_on_line(x, x * a + b+1))
 def test_is_on_line():
-    for (a,b) in zip([-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2], [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]):
+    for (a,b) in itertools.combinations(_TEST_VALUES, 2):
         _test_is_on_line(a,b)
 def test_is_not_on_line():
-    for (a,b) in zip([-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2], [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]):
+    for (a,b) in itertools.combinations(_TEST_VALUES, 2):
         _test_is_not_on_line(a,b)
 
 #vertical line tests
@@ -57,26 +64,33 @@ def _test_str_vline(b):
     L = VerticalLine(b)
     assert str(L) == f'x = {b}'
 def test_str_vline():
-    for b in [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]:
+    for b in _TEST_VALUES:
         _test_str_vline(b)
-def _test_x_values_vline(b, test_values):
+def _test_x_values_vline(b):
     L = VerticalLine(b)
-    for v in test_values:
+    for v in _TEST_VALUES:
         assert L.x(v) == b
 def test_x_values_vline():
-    _test_x_values_vline(2, [-1, -.5, 0, .5, 1])
+    _test_x_values_vline(2)
+    _test_x_values_vline(0)
+    _test_x_values_vline(-1)
 def test_y_values_vline():
     L = VerticalLine(42)
     with pytest.raises(LineInvalidException):
         L.y(3)
 def test_is_on_vline():
     L = VerticalLine(42)
-    for y in [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]:
+    for y in _TEST_VALUES:
         assert L.is_on_line(42, y)
 def test_is_not_on_vline():
     L = VerticalLine(42)
-    for y in [-2,-1.5,-1.25,-1,.5,-.333, 0,.333,.5,1,1.25,1.5,2]:
+    for y in _TEST_VALUES:
         assert not L.is_on_line(43, y)
+
+def _TEST_VECTORS_2D(n):
+    return random.sample([[a,b] for (a,b) in itertools.combinations(_TEST_VALUES, 2)], n)
+def _TEST_VECTORS_3D(n):
+    return random.sample([[a,b,c] for (a,b,c) in itertools.combinations(_TEST_VALUES, 3)], n)
 
 #--- linevector tests
 def test_init_line_vector2D():
@@ -102,14 +116,15 @@ def _test_str_line_vector2D(P,R):
     L = LineVector(P,R)
     assert str(L) == f'V = {L.P[0],L.P[1]} + {lamda}{L.R[0],L.R[1]}'
 def test_str_line_vector2D():
-    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
+    tv = _TEST_VECTORS_2D(20)
+    for (P,R) in itertools.combinations(tv, 2):
         _test_str_line_vector2D(P,R)
 def _test_str_line_vector3D(P,R):
     L = LineVector(P,R)
     assert str(L) == f'V = {L.P[0],L.P[1],L.P[2]} + {lamda}{L.R[0],L.R[1],L.R[2]}'
 def test_str_line_vector3D():
-    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
-                        [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
+    tv = _TEST_VECTORS_3D(20)
+    for (P,R) in itertools.combinations(tv, 2):
         _test_str_line_vector3D(P,R)
 def _test_labda_values(P, R, test_values):
     LV = LineVector(P, R)
@@ -126,24 +141,26 @@ def _test_labdas(P, R, test_values):
         ll = LV.labda(vv)
         assert round(LV.labda(vv),PRECISION) == round(l, PRECISION)
 def test_labdas2D():
-    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_labdas(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_2D(20)
+    for (P,R) in itertools.combinations(tv, 2):
+        _test_labdas(P, R, _TEST_VALUES)
 def test_labdas3D():
-    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
-                        [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_labdas(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_3D(20)
+    for (P,R) in itertools.combinations(tv, 2):
+        _test_labdas(P,R, _TEST_VALUES)
 def _test_is_on_line_vector(P,R,test_values):
     LV = LineVector(P, R)
     for l in test_values:
         v = LV.V(l)
         assert LV.is_on_line(v)
 def test_is_on_line2D():
-    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_is_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_2D(20)
+    for (P,R) in itertools.combinations(tv, 2):
+        _test_is_on_line_vector(P,R, _TEST_VALUES)
 def test_is_on_line3D():
-    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
-                        [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_is_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_3D(20)
+    for (P,R) in itertools.combinations(tv, 2):
+        _test_is_on_line_vector(P,R, _TEST_VALUES)
 def _test_is_not_on_line_vector(P,R,test_values):
     LV = LineVector(P, R)
     for l in test_values:
@@ -153,12 +170,13 @@ def _test_is_not_on_line_vector(P,R,test_values):
             v[r] = v[r]+1
         assert not LV.is_on_line(v)
 def test_is_not_on_line2D():
-    for (P,R) in zip([[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]], [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]):
-        _test_is_not_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_2D(20)
+    for (P,R) in itertools.combinations(tv,2):
+        _test_is_not_on_line_vector(P,R, _TEST_VALUES)
 def test_is_not_on_line3D():
-    for (P,R) in zip([[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]], 
-                        [[-2,-1,4],[-1.5,+2,-1],[-1.25,0,-1],[1,.5,-.333], [-4,0,.333],[.5,1,1],[1.25,.87,1.5],[42,2,-1],[3,-42,-1.4]]):
-        _test_is_not_on_line_vector(P,R, [-3,-2, -1.4, -1.3, -1, .75, 0, 0.1, 0.4, 0.9, 1, 1.2, 2, 3, 50, 100])
+    tv = _TEST_VECTORS_3D(20)
+    for (P,R) in itertools.combinations(tv,2):
+        _test_is_not_on_line_vector(P,R, _TEST_VALUES)
 def __test_angle(LV1, LV2, expected_angle, degrees = True):
     assert round(LV1.angle(LV2,degrees),PRECISION) == round(expected_angle,PRECISION)
     assert round(LV2.angle(LV1, degrees),PRECISION) == round(expected_angle,PRECISION)
@@ -223,4 +241,3 @@ def test_line_convertor_vline_from_vector():
     line = LC.line_from_vector(vector)
     assert isinstance(line, VerticalLine)
     assert line.b == 42
-
