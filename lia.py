@@ -3,8 +3,8 @@ import math
 
 PRECISION = 7
 
-lamda= '\u03BB'
-mu = '\u00B5'
+LAMBDA  = '\u03BB' # λ
+MU      = '\u00B5' # μ
 
 class LiaException(Exception):
     pass

@@ -3,13 +3,9 @@ import pytest
 import itertools
 import math
 import numpy as np
-from lia import lamda, PRECISION
+from lia import LAMBDA, PRECISION
 from line import Line, VerticalLine, LineVector, LineConvertor, LineInvalidException
-
-
-_TEST_VALUES = [-1000, -100, -50, -42, -10, -5, -math.pi, -3, -2.5, -2, -1, -.75, -.66666, -.5, -.3, -.2, -.1, -.01, -.0001, 
-                0, 
-                .0001, .01, .1, .2, .3, .5, .66666, .75, 1, 2, 2.5, 3, math.pi, 5, 10, 42, 50, 100, 1000]
+from lia_test_const import _TEST_VALUES, _TEST_VECTORS_2D, _TEST_VECTORS_3D
 
 #--- line tests
 def test_init_line():
@@ -87,10 +83,6 @@ def test_is_not_on_vline():
     for y in _TEST_VALUES:
         assert not L.is_on_line(43, y)
 
-def _TEST_VECTORS_2D(n):
-    return random.sample([[a,b] for (a,b) in itertools.combinations(_TEST_VALUES, 2)], n)
-def _TEST_VECTORS_3D(n):
-    return random.sample([[a,b,c] for (a,b,c) in itertools.combinations(_TEST_VALUES, 3)], n)
 
 #--- linevector tests
 def test_init_line_vector2D():
@@ -114,14 +106,14 @@ def test_init_line_vector_invalid_zero3D():
         LineVector([0,1,2], [0,0,0])
 def _test_str_line_vector2D(P,R):
     L = LineVector(P,R)
-    assert str(L) == f'V = {L.P[0],L.P[1]} + {lamda}{L.R[0],L.R[1]}'
+    assert str(L) == f'V = {L.P[0],L.P[1]} + {LAMBDA}{L.R[0],L.R[1]}'
 def test_str_line_vector2D():
     tv = _TEST_VECTORS_2D(20)
     for (P,R) in itertools.combinations(tv, 2):
         _test_str_line_vector2D(P,R)
 def _test_str_line_vector3D(P,R):
     L = LineVector(P,R)
-    assert str(L) == f'V = {L.P[0],L.P[1],L.P[2]} + {lamda}{L.R[0],L.R[1],L.R[2]}'
+    assert str(L) == f'V = {L.P[0],L.P[1],L.P[2]} + {LAMBDA}{L.R[0],L.R[1],L.R[2]}'
 def test_str_line_vector3D():
     tv = _TEST_VECTORS_3D(20)
     for (P,R) in itertools.combinations(tv, 2):

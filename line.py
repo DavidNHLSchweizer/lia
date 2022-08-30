@@ -1,6 +1,6 @@
 from __future__ import annotations
 import numpy as np
-from lia import lamda, angle, PRECISION
+from lia import LAMBDA, angle, PRECISION
 
 class LineInvalidException(Exception):
     pass
@@ -56,7 +56,7 @@ class LineVector:
         self._P = np.array(P)
         self._R = np.array(R)
     def __str__(self):
-        return f'V = {tuple(self.P[i] for i in range(self.dim()))} + {lamda}{tuple(self.R[i] for i in range(self.dim()))}'
+        return f'V = {tuple(self.P[i] for i in range(self.dim()))} + {LAMBDA}{tuple(self.R[i] for i in range(self.dim()))}'
     def dim(self):
         return len(self._P)
     @property

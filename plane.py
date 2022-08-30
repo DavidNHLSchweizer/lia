@@ -1,5 +1,6 @@
+from __future__ import annotations
 import numpy as np
-from lia import lamda, mu, angle, PRECISION
+from lia import LAMBDA, MU, angle, PRECISION
 
 class PlaneInvalidException(Exception):
     pass
@@ -29,22 +30,39 @@ class Plane:
     def normal_vector(self):
         return np.array([self.a,self.b,self.c])
     def x(self, y: float, z: float)->float:
-        if round(self.a,PRECISION) == 0:
+        if self.is_parallel_x():
             return None
         else:
             return (self.d - self.b*y - self.c*z) / self.a
     def y(self, x: float, z: float)->float:
-        if round(self.b,PRECISION) == 0:
+        if self.is_parallel_y():
             return None
         else:
             return (self.d - self.a*x - self.c*z) / self.b
     def z(self, x: float, y: float)->float:
-        if round(self.c,PRECISION) == 0:
+        if self.is_parallel_z():
             return None
         else:
             return (self.d - self.a*x - self.b*y) / self.c
+    def is_parallel_x(self):
+        return round(self.a,PRECISION) == 0
+    def is_parallel_y(self):
+        return round(self.b,PRECISION) == 0
+    def is_parallel_z(self):
+        return round(self.c,PRECISION) == 0
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
+    def normalized(self)->Plane:
+        if not self.is_parallel_x():
+            factor = 1 / self.a
+        elif not self.is_parallel_y():
+            factor = 1 / self.b
+        elif not self.is_parallel_z():            
+            factor = 1 / self.c
+        else:
+            raise PlaneInvalidException(f'invalid plane {self} (normalized)')
+        return Plane(self.a*factor, self.b*factor, self.c*factor, self.d*factor)
+
 
 class PlaneVector:
     def __init__(self, P:list[float], R1:list[float], R2:list[float]):
@@ -70,11 +88,11 @@ class PlaneVector:
     def R2(self)->np.array:
         return self._R2
     def __str__(self):
-        return f'{self.P} + {lamda}{self.R1} + {mu}{self.R2}'
+        return f'{self.P} + {LAMBDA}{self.R1} + {MU}{self.R2}'
     def normal_vector(self)->np.array:
         return np.cross(self.R1, self.R2)
     def V(self, labda: float, mu: float)->np.array:
-        return np.array([self.P[i] + labda*self.R1[i] + mu*self.R2[i] for i in range(3)])
+        return np.array([self.P[i] + labda*self.R1[i] + mu*self.R2[i] for i in range(3)])    
     def as_matrix(self)->np.array:
         return [[]]
 
@@ -86,15 +104,21 @@ class PlaneConvertor:
             return PlaneVector([0,P.d/P.b,0], [1,-P.a/P.b,0], [0,0,1])
         else:
             return PlaneVector([P.d/P.a,0,0], [0,1,0], [0,0,1])
-
     def plane_from_plane_vector(self, PV: PlaneVector)->Plane:
-        matrix = PV.as_matrix()
+        normal = PV.normal_vector()
+        return Plane(normal[0], normal[1], normal[2], np.inner(normal, PV.P))
     
 
-# PC=PlaneConvertor()
-# P = Plane(-1, 2, -2, 6)
-# PV = PC.plane_vector_from_plane(P)
-# print(PV)
+PC=PlaneConvertor()
+P = Plane(-1, 2, -2, 6)
+
+PV = PC.plane_vector_from_plane(P)
+print(PV)
+
+print(P.normalized())
+P2 = PC.plane_from_plane_vector(PV).normalized()
+
+print(P2)
 
 # def plm(PV, l, m):
 #     print(f'{lamda}:{l} {mu}:{m} \t{PV.V(l,m)}')    
