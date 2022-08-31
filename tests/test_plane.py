@@ -91,6 +91,21 @@ def test_is_on_plane():
     for (a,b,c,d) in ABCD_VALUES:
         _test_is_on_plane(Plane(a,b,c,d))
 
+def _test_is_parallel(a,b,c, d, expected:list[bool]):
+    P = Plane(a,b,c,d)
+    assert P.is_parallel_x() == expected[0]
+    assert P.is_parallel_y() == expected[1]
+    assert P.is_parallel_z() == expected[2]
+
+def test_is_parallel():
+    _test_is_parallel(1,2,3,4,[False, False, False])
+    _test_is_parallel(0,2,3,4,[True, False, False])
+    _test_is_parallel(1,0,3,4,[False, True, False])
+    _test_is_parallel(1,2,0,4,[False, False, True])
+    _test_is_parallel(0,0,1,4,[True, True, False])
+    _test_is_parallel(0,1,0,4,[True, False, True])
+    _test_is_parallel(1,0,0,4,[False, True, True])
+
 #plane vector tests
 def _test_init_plane_vector(P, R1, R2):
     PV = PlaneVector(P, R1, R2)
@@ -128,4 +143,8 @@ def _test_plane_vector_normal_vector(PV: PlaneVector, expected_vector):
 def test_plane_vector_normal_vector():
     _test_plane_vector_normal_vector(PlaneVector([1,2,3], [1,0,0], [0,1,0]), [0,0,1])
     _test_plane_vector_normal_vector(PlaneVector([1,2,3], [1,2,3], [3,4,5]), [-2,4,-2])
+
+def _test_plane_vector_V(PV, l, m):
+    assert np.allclose(PV.V(l,m), [PV.P[i]+l*PV.R1[i]+m*PV.R2[i] for i in range(3)])
+
 

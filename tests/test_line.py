@@ -20,16 +20,16 @@ def test_str_line():
         _test_str(a,b)
 def _test_x_values(a, b):
     L = Line(a,b)
-    for v in _TEST_VALUES:
-        assert L.y(v) == a * v + b
+    for x in _TEST_VALUES:
+        assert L.y(x) == a * x + b
 def _test_y_values(a, b):
     L = Line(a,b)
-    for v in _TEST_VALUES:
-        assert L.x(v) == (v-b)/a        
+    for y in _TEST_VALUES:
+        assert round(y,PRECISION) == round(a*L.x(y) + b,PRECISION)
 def test_x_values():
     _test_x_values(1, 2)
     _test_x_values(1, 0)
-def test_x_values_horizontal():
+def test_x_values_horizontal_invalid():
     L = Line(0,3)
     with pytest.raises(LineInvalidException):
         L.x(4)
@@ -83,18 +83,16 @@ def test_is_not_on_vline():
     for y in _TEST_VALUES:
         assert not L.is_on_line(43, y)
 
-
 #--- linevector tests
+def _test_init_line_vector(P, R, expected_dim):
+    LV = LineVector(P,R)
+    assert np.array_equiv(LV.P, P)    
+    assert np.array_equiv(LV.R, R)
+    assert LV.dim() == expected_dim
 def test_init_line_vector2D():
-    LV = LineVector([1,2], [2,3])
-    assert np.array_equiv(LV.P, [1,2])    
-    assert np.array_equiv(LV.R, [2,3])
-    assert LV.dim() == 2
+    _test_init_line_vector([1,2], [2,3], 2)
 def test_init_line_vector3D():
-    LV = LineVector([1,2,3], [2.5,3.5,4.5])
-    assert np.array_equiv(LV.P, [1,2,3])    
-    assert np.array_equiv(LV.R, [2.5,3.5,4.5])
-    assert LV.dim() == 3
+    _test_init_line_vector([1,2,3], [2.5,3.5,4.5],3)
 def test_init_line_vector_invalid():
     with pytest.raises(LineInvalidException):
         LineVector([0,1], [1,2,3])
@@ -189,6 +187,7 @@ def test_angles():
 def _test_normal_vector(R):
     LV = LineVector([1,1],R)
     NV = LV.normal_vector()
+    assert np.linalg.norm(NV) > 0
     assert round(np.inner(NV, LV.R),PRECISION) == 0
 def test_normal_vector_normal():
     for R in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:

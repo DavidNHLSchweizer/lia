@@ -1,35 +1,32 @@
 import numpy as np
 import math
+from lia import DEGREES, angle
+
 from line import Line, LineConvertor, LineVector
 from plane import Plane, PlaneConvertor, PlaneVector
 xyz = ['x', 'y', 'z']
 
-
-
 def _opgave1(a, b, msg):
     a = np.array(a)
     b = np.array(b)
-    print(msg)
-    print('\t', np.add(a,b))
-    print('\t', np.subtract(a,b))
-    print('\t', np.inner(a,b))
+    print(f'{msg}\n\ta+b={np.add(a,b)}  a-b={np.subtract(a,b)}   (a,b)={np.inner(a,b)}')
 
 
 def _opgave2(l1: Line, lv1: LineVector, msg):
     angle = lv1.angle(LineConvertor().vector_from_line(l1))
-    print(f'{msg}\t {round(angle, 1)}')    
+    print(f'{msg}\n\tangle={round(angle, 1)}{DEGREES}')    
   
 def _opgave3(v, msg):
     v = np.array(v)
-    print(msg)
-    print('\t', round(np.linalg.norm(v), 2))
+    print(f'{msg}\n\tlength={round(np.linalg.norm(v), 2)}')
     
+def _opgave4(v, msg):
+    print(f'{msg}\n\tvector: {v}  scaled: {v / np.linalg.norm(v)}')
 
 def _bereken_afstand_punt_vlak(point, plane: PlaneVector, msg):
     line = LineVector(point, plane.normal_vector())
     intersection = plane.line_intersection(line)
-    print(msg)
-    print(f'\tdistance:{np.linalg.norm(intersection-point):.2f}')
+    print(f'{msg}\n\tdistance:{np.linalg.norm(intersection-point):.2f}')
 
 def voorbeeld1():
     _bereken_afstand_punt_vlak(np.array([3,6,7]), PlaneVector([5,0,3], [-1,-1,1], [3,5,-6]), 'voorbeeld blz 20')
@@ -39,13 +36,11 @@ def voorbeeld2():
 def opgave1():
     _opgave1([3,-1,2,0], [-2,2,4,7], 'opgave 1')
 def opgave2():
-    _opgave2(Line(1,2), LineVector([-3,7], [2,-3]), 'opgave 2')           
+    _opgave2(Line(2,7), LineVector([-3,7], [2,-3]), 'opgave 2')           
 def opgave3():
     _opgave3([2,-3,0,2,-5], 'opgave 3')
 def opgave4():
-    v = np.array([-1,5,7,0,5])
-    print('opgave 4')
-    print('\t', v / np.linalg.norm(v))
+    _opgave4([-1,5,7,0,5], 'opgave 4')
 def opgave5():
     _bereken_afstand_punt_vlak(np.array([7,0,-2]), PlaneVector([8,-5,3], [3,-2,1], [-5,3,-2]), 'opgave 5')
 def opgave6():
@@ -85,4 +80,6 @@ def hfst2():
     opgave4_extra()
     opgave5_extra()
 
-hfst2()
+    print('*** EINDE ***')
+if __name__ == '__main__':
+    hfst2()

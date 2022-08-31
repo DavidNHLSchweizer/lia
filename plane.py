@@ -53,17 +53,7 @@ class Plane:
         return round(self.c,PRECISION) == 0
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
-    def normalized(self)->Plane:
-        if not self.is_parallel_x():
-            factor = 1 / self.a
-        elif not self.is_parallel_y():
-            factor = 1 / self.b
-        elif not self.is_parallel_z():            
-            factor = 1 / self.c
-        else:
-            raise PlaneInvalidException(f'invalid plane {self} (normalized)')
-        return Plane(self.a*factor, self.b*factor, self.c*factor, self.d*factor)
-
+    
 class PlaneVector:
     def __init__(self, P:list[float], R1:list[float], R2:list[float]):
         #V = P + λ.R1 + μ.R2
@@ -123,34 +113,3 @@ class PlaneConvertor:
         normal = PV.normal_vector()
         return Plane(normal[0], normal[1], normal[2], np.inner(normal, PV.P))
     
-
-# PC=PlaneConvertor()
-# P = Plane(-1, 2, -2, 6)
-
-# PV = PC.plane_vector_from_plane(P)
-# # print(PV)
-
-# # print(P.normalized())
-# # P2 = PC.plane_from_plane_vector(PV).normalized()
-
-# LV = LineVector([2,3,4], [1,4,7])
-# PPP = PV.line_intersection(LV)
-# print(f'intersection: {PPP}    on plane: {PV.is_on_plane(PPP)}')
-
-# # print(P2)
-# # for l,m in [1,2], [0,3], [-1.4,5], [6.1,0], [0,0]:
-# #     V = PV.V(l,m)
-# #     print(PV.solve(V))
-    
-
-# #print(PV.solve(np.array([-1.4,6,2.7])))
-# # def plm(PV, l, m):
-# #     print(f'{lamda}:{l} {mu}:{m} \t{PV.V(l,m)}')    
-# # P = Plane(2, 3, 0, 5)
-# # PV = PC.plane_vector_from_plane(P)
-# # print(PV)
-# # plm(PV, 0,0)
-# # plm(PV, 1,0)
-# # plm(PV, 0, 1)
-# # plm(PV, .5,.5)
-# # plm(PV, 1, 1)

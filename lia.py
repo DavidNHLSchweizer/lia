@@ -5,7 +5,7 @@ PRECISION = 7
 
 LAMBDA  = '\u03BB' # λ
 MU      = '\u00B5' # μ
-
+DEGREES = '\u00B0' # °
 class LiaException(Exception):
     pass
 
