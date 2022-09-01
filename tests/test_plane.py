@@ -3,7 +3,7 @@ import itertools
 import pytest
 import numpy as np
 from lia import LAMBDA, MU, PRECISION
-from plane import Plane, PlaneInvalidException, PlaneVector
+from plane import Plane, PlaneInvalidException, VectorPlane
 from lia_test_const import _TEST_VALUES, _TEST_VECTORS_2D, _TEST_VECTORS_3D, ABCD_VALUES
 
 #plane tests
@@ -108,43 +108,43 @@ def test_is_parallel():
 
 #plane vector tests
 def _test_init_plane_vector(P, R1, R2):
-    PV = PlaneVector(P, R1, R2)
-    assert np.array_equiv(PV.P, P)    
-    assert np.array_equiv(PV.R1, R1)
-    assert np.array_equiv(PV.R2, R2)
-    assert str(PV) == f'{PV.P} + {LAMBDA}{PV.R1} + {MU}{PV.R2}'
+    VP = VectorPlane(P, R1, R2)
+    assert np.array_equiv(VP.P, P)    
+    assert np.array_equiv(VP.R1, R1)
+    assert np.array_equiv(VP.R2, R2)
+    assert str(VP) == f'{VP.P} + {LAMBDA}{VP.R1} + {MU}{VP.R2}'
 
 def test_init_plane_vector():
     _test_init_plane_vector([1,2,3], [2,4,6], [7,8,9])
     
 def test_init_plane_vector_invalid1():
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([1,2], [2,4,6], [7,8,9])
+        VectorPlane([1,2], [2,4,6], [7,8,9])
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([1,2,3], [2,6], [7,8,9])
+        VectorPlane([1,2,3], [2,6], [7,8,9])
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([1,2,3], [2,4,6], [7,8])
+        VectorPlane([1,2,3], [2,4,6], [7,8])
 
 def test_init_plane_vector_invalid2():
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([0,0,0], [1,0,0], [2,0,0])
+        VectorPlane([0,0,0], [1,0,0], [2,0,0])
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([0,0,0], [1,0,0], [-1,0,0])
+        VectorPlane([0,0,0], [1,0,0], [-1,0,0])
 
 def test_init_plane_vector_invalid3():
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([0,0,0], [0,0,0], [2,0,0])
+        VectorPlane([0,0,0], [0,0,0], [2,0,0])
     with pytest.raises(PlaneInvalidException):
-        PlaneVector([0,0,0], [1,0,0], [0,0,0])
+        VectorPlane([0,0,0], [1,0,0], [0,0,0])
 
-def _test_plane_vector_normal_vector(PV: PlaneVector, expected_vector):
-    assert np.array_equiv(PV.normal_vector(), expected_vector)
+def _test_plane_vector_normal_vector(VP: VectorPlane, expected_vector):
+    assert np.array_equiv(VP.normal_vector(), expected_vector)
 
 def test_plane_vector_normal_vector():
-    _test_plane_vector_normal_vector(PlaneVector([1,2,3], [1,0,0], [0,1,0]), [0,0,1])
-    _test_plane_vector_normal_vector(PlaneVector([1,2,3], [1,2,3], [3,4,5]), [-2,4,-2])
+    _test_plane_vector_normal_vector(VectorPlane([1,2,3], [1,0,0], [0,1,0]), [0,0,1])
+    _test_plane_vector_normal_vector(VectorPlane([1,2,3], [1,2,3], [3,4,5]), [-2,4,-2])
 
-def _test_plane_vector_V(PV, l, m):
-    assert np.allclose(PV.V(l,m), [PV.P[i]+l*PV.R1[i]+m*PV.R2[i] for i in range(3)])
+def _test_plane_vector_V(VP, l, m):
+    assert np.allclose(VP.V(l,m), [VP.P[i]+l*VP.R1[i]+m*VP.R2[i] for i in range(3)])
 
 

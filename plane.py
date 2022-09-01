@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from lia import LAMBDA, MU, angle, PRECISION
-from line import LineVector
+from line import VectorLine
 
 class PlaneInvalidException(Exception):
     pass
@@ -54,7 +54,7 @@ class Plane:
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
     
-class PlaneVector:
+class VectorPlane:
     def __init__(self, P:list[float], R1:list[float], R2:list[float]):
         #V = P + λ.R1 + μ.R2
         if not (len(P) == 3 and len(R1) == 3 and len(R2) == 3):
@@ -95,21 +95,21 @@ class PlaneVector:
             return (solution[1], solution[2])
         else:
             return None
-    def line_intersection(self, LV: LineVector)->np.array:
-        matrix = np.array([[-LV.R[i], self.R1[i], self.R2[i]] for i in range(3)])
-        solution = np.linalg.solve(matrix, np.array([LV.P[i]-self.P[i] for i in range(3)]))
-        return LV.V(solution[0])
+    def line_intersection(self, VL: VectorLine)->np.array:
+        matrix = np.array([[-VL.R[i], self.R1[i], self.R2[i]] for i in range(3)])
+        solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(3)]))
+        return VL.V(solution[0])
 
 
 class PlaneConvertor:
-    def plane_vector_from_plane(self, P: Plane)->PlaneVector:
+    def vector_plane_from_plane(self, P: Plane)->VectorPlane:
         if not round(P.c,PRECISION) == 0:
-            return PlaneVector([0,0,P.d/P.c], [1,0,-P.a/P.c], [0,1,-P.b/P.c])
+            return VectorPlane([0,0,P.d/P.c], [1,0,-P.a/P.c], [0,1,-P.b/P.c])
         elif not round(P.b,PRECISION) == 0:
-            return PlaneVector([0,P.d/P.b,0], [1,-P.a/P.b,0], [0,0,1])
+            return VectorPlane([0,P.d/P.b,0], [1,-P.a/P.b,0], [0,0,1])
         else:
-            return PlaneVector([P.d/P.a,0,0], [0,1,0], [0,0,1])
-    def plane_from_plane_vector(self, PV: PlaneVector)->Plane:
-        normal = PV.normal_vector()
-        return Plane(normal[0], normal[1], normal[2], np.inner(normal, PV.P))
+            return VectorPlane([P.d/P.a,0,0], [0,1,0], [0,0,1])
+    def plane_from_vector_plane(self, VP: VectorPlane)->Plane:
+        normal = VP.normal_vector()
+        return Plane(normal[0], normal[1], normal[2], np.inner(normal, VP.P))
     

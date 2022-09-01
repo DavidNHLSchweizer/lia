@@ -4,7 +4,7 @@ import itertools
 import math
 import numpy as np
 from lia import LAMBDA, PRECISION
-from line import Line, VerticalLine, LineVector, LineConvertor, LineInvalidException
+from line import Line, VerticalLine, VectorLine, LineConvertor, LineInvalidException
 from lia_test_const import _TEST_VALUES, _TEST_VECTORS_2D, _TEST_VECTORS_3D
 
 #--- line tests
@@ -85,7 +85,7 @@ def test_is_not_on_vline():
 
 #--- linevector tests
 def _test_init_line_vector(P, R, expected_dim):
-    LV = LineVector(P,R)
+    LV = VectorLine(P,R)
     assert np.array_equiv(LV.P, P)    
     assert np.array_equiv(LV.R, R)
     assert LV.dim() == expected_dim
@@ -95,29 +95,29 @@ def test_init_line_vector3D():
     _test_init_line_vector([1,2,3], [2.5,3.5,4.5],3)
 def test_init_line_vector_invalid():
     with pytest.raises(LineInvalidException):
-        LineVector([0,1], [1,2,3])
+        VectorLine([0,1], [1,2,3])
 def test_init_line_vector_invalid_zero2D():
     with pytest.raises(LineInvalidException):
-        LineVector([0,1], [0,0])
+        VectorLine([0,1], [0,0])
 def test_init_line_vector_invalid_zero3D():
     with pytest.raises(LineInvalidException):
-        LineVector([0,1,2], [0,0,0])
+        VectorLine([0,1,2], [0,0,0])
 def _test_str_line_vector2D(P,R):
-    L = LineVector(P,R)
+    L = VectorLine(P,R)
     assert str(L) == f'V = {L.P[0],L.P[1]} + {LAMBDA}{L.R[0],L.R[1]}'
 def test_str_line_vector2D():
     tv = _TEST_VECTORS_2D(20)
     for (P,R) in itertools.combinations(tv, 2):
         _test_str_line_vector2D(P,R)
 def _test_str_line_vector3D(P,R):
-    L = LineVector(P,R)
+    L = VectorLine(P,R)
     assert str(L) == f'V = {L.P[0],L.P[1],L.P[2]} + {LAMBDA}{L.R[0],L.R[1],L.R[2]}'
 def test_str_line_vector3D():
     tv = _TEST_VECTORS_3D(20)
     for (P,R) in itertools.combinations(tv, 2):
         _test_str_line_vector3D(P,R)
 def _test_labda_values(P, R, test_values):
-    LV = LineVector(P, R)
+    LV = VectorLine(P, R)
     for l in test_values:
         assert np.array_equiv(LV.V(l), [P[i]+l*R[i] for i in range(LV.dim())])
 def test_labda_values2D():
@@ -125,7 +125,7 @@ def test_labda_values2D():
 def test_labda_values3D():
     _test_labda_values([1,2,3], [2,3, -1], [-1, -.5, 0, .5, 1])
 def _test_labdas(P, R, test_values):
-    LV = LineVector(P, R)
+    LV = VectorLine(P, R)
     for l in test_values:
         vv = LV.V(l)
         ll = LV.labda(vv)
@@ -139,7 +139,7 @@ def test_labdas3D():
     for (P,R) in itertools.combinations(tv, 2):
         _test_labdas(P,R, _TEST_VALUES)
 def _test_is_on_line_vector(P,R,test_values):
-    LV = LineVector(P, R)
+    LV = VectorLine(P, R)
     for l in test_values:
         v = LV.V(l)
         assert LV.is_on_line(v)
@@ -152,7 +152,7 @@ def test_is_on_line3D():
     for (P,R) in itertools.combinations(tv, 2):
         _test_is_on_line_vector(P,R, _TEST_VALUES)
 def _test_is_not_on_line_vector(P,R,test_values):
-    LV = LineVector(P, R)
+    LV = VectorLine(P, R)
     for l in test_values:
         v = LV.V(l)
         v0 = v.copy()
@@ -174,18 +174,18 @@ def _test_angle(LV1, LV2, expected_angle):
     __test_angle(LV1, LV2, expected_angle)
     __test_angle(LV1, LV2, expected_angle * math.pi/180, False)
 def test_angles():
-    LV1 = LineVector([1,3], [1,0])
-    _test_angle(LV1, LineVector([42,42], [1, 0]), 0)
-    _test_angle(LV1, LineVector([42,42], [.5*math.sqrt(3), .5]), 30)
-    _test_angle(LV1, LineVector([42,42], [math.sqrt(3), 1]), 30)
-    _test_angle(LV1, LineVector([42,42], [.5*math.sqrt(2), .5*math.sqrt(2)]), 45)
-    _test_angle(LV1, LineVector([42,42], [5*math.sqrt(2), 5*math.sqrt(2)]), 45)
-    _test_angle(LV1, LineVector([42,42], [.5, .5*math.sqrt(3)]), 60)
-    _test_angle(LV1, LineVector([42,42], [0, 1]), 90)
-    _test_angle(LV1, LineVector([42,42], [-.5*math.sqrt(2), .5*math.sqrt(2)]), 135)
-    _test_angle(LV1, LineVector([42,42], [-1, 0]), 180)
+    LV1 = VectorLine([1,3], [1,0])
+    _test_angle(LV1, VectorLine([42,42], [1, 0]), 0)
+    _test_angle(LV1, VectorLine([42,42], [.5*math.sqrt(3), .5]), 30)
+    _test_angle(LV1, VectorLine([42,42], [math.sqrt(3), 1]), 30)
+    _test_angle(LV1, VectorLine([42,42], [.5*math.sqrt(2), .5*math.sqrt(2)]), 45)
+    _test_angle(LV1, VectorLine([42,42], [5*math.sqrt(2), 5*math.sqrt(2)]), 45)
+    _test_angle(LV1, VectorLine([42,42], [.5, .5*math.sqrt(3)]), 60)
+    _test_angle(LV1, VectorLine([42,42], [0, 1]), 90)
+    _test_angle(LV1, VectorLine([42,42], [-.5*math.sqrt(2), .5*math.sqrt(2)]), 135)
+    _test_angle(LV1, VectorLine([42,42], [-1, 0]), 180)
 def _test_normal_vector(R):
-    LV = LineVector([1,1],R)
+    LV = VectorLine([1,1],R)
     NV = LV.normal_vector()
     assert np.linalg.norm(NV) > 0
     assert round(np.inner(NV, LV.R),PRECISION) == 0
@@ -202,7 +202,7 @@ def test_init_line_convertor():
 def _test_line_convertor_vector_from_line(a, b, expected_V1, expected_V2):
     LC = LineConvertor()
     line = Line(a,b)
-    vector = LC.vector_from_line(line)
+    vector = LC.vector_line_from_line(line)
     assert np.array_equiv(vector.P, expected_V1)
     assert np.array_equiv(vector.R, expected_V2)
 def test_line_convertor_vector_from_line():
@@ -213,13 +213,13 @@ def test_line_convertor_vector_from_line():
 def test_line_convertor_vector_from_vline():
     LC = LineConvertor()
     line = VerticalLine(42)
-    vector = LC.vector_from_line(line)
+    vector = LC.vector_line_from_line(line)
     assert np.array_equiv(vector.P, [42,0])
     assert np.array_equiv(vector.R, [0,1])
 def _test_line_convertor_line_from_vector(P, R, expected_a, expected_b):
     LC = LineConvertor()
-    vector = LineVector(P,R)
-    line = LC.line_from_vector(vector)
+    vector = VectorLine(P,R)
+    line = LC.line_from_vector_line(vector)
     assert line.a == expected_a
     assert line.b == expected_b
 def test_line_convertor_line_from_vector():
@@ -228,7 +228,7 @@ def test_line_convertor_line_from_vector():
     _test_line_convertor_line_from_vector([-1.2,0], [1,2.5], 2.5,3)
 def test_line_convertor_vline_from_vector():
     LC = LineConvertor()
-    vector = LineVector([42,0],[0,1])
-    line = LC.line_from_vector(vector)
+    vector = VectorLine([42,0],[0,1])
+    line = LC.line_from_vector_line(vector)
     assert isinstance(line, VerticalLine)
     assert line.b == 42

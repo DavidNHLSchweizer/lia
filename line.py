@@ -46,7 +46,7 @@ class VerticalLine(LineBase):
     def is_on_line(self, x: float, y: float)->bool:
         return x == self.b
 
-class LineVector:
+class VectorLine:
     #V = P + λ.R
     def __init__(self, P:list[float], R:list[float]):
         if len(P) != len(R):
@@ -76,7 +76,7 @@ class LineVector:
         return None
     def is_on_line(self, V)->bool:
         return self.labda(V) is not None
-    def angle(self, LV2: LineVector, degrees = True)->float:
+    def angle(self, LV2: VectorLine, degrees = True)->float:
         return angle(self.R, LV2.R, degrees)
     def normal_vector(self)->np.array:
         if self.R[1] == 0:
@@ -85,17 +85,17 @@ class LineVector:
             return np.array([1,-self.R[0]/self.R[1]])
 
 class LineConvertor:    
-    def vector_from_line(self, l: Line)->LineVector:
+    def vector_line_from_line(self, l: Line)->VectorLine:
         if isinstance(l, VerticalLine):
-            return LineVector([l.b, 0], [0, 1])
+            return VectorLine([l.b, 0], [0, 1])
         elif l.a == 0:
-            return LineVector([0,l.b], [1,0])
+            return VectorLine([0,l.b], [1,0])
         else:
-            return LineVector([-l.b/l.a,0], [1,l.a])
-    def line_from_vector(self, LV: LineVector)->LineBase:
-        if LV.R[0] == 0:
-            return VerticalLine(LV.P[0])
+            return VectorLine([-l.b/l.a,0], [1,l.a])
+    def line_from_vector_line(self, VL: VectorLine)->LineBase:
+        if VL.R[0] == 0:
+            return VerticalLine(VL.P[0])
         else:
-            a = LV.R[1] / LV.R[0]
-            b = LV.P[1] - LV.P[0]*LV.R[1] / LV.R[0]
+            a = VL.R[1] / VL.R[0]
+            b = VL.P[1] - VL.P[0]*VL.R[1] / VL.R[0]
             return Line(a,b)
