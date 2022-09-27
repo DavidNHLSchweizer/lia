@@ -80,3 +80,28 @@ def hfst2():
     
 if __name__ == '__main__':
     hfst2()
+
+ang1 = angle(np.array([-1,9,6]), np.array([3,-1,2]))
+ang2 = angle(np.array([-1,9,6]), np.array([0,2,-3]))
+print(f'{ang1}  {ang2}')
+
+print(np.cross([2,0,-1], [3,1,3]))
+print(np.cross([2,1,0], [1.5,0,1]))
+print(np.cross([-1,-1,1], [3,5,-6]))
+
+V = VectorPlane([5,0,3],[-1,-1,1],[3,5,-6])
+L = VectorLine([3,6,7],[1,-3,-2])
+print(V.line_intersection(L))
+
+print(np.cross([-5,-8,3], [2,3,-1]))
+V = VectorPlane([-1,-2,0],[-5,-8,3],[2,3,-1])
+L = VectorLine([-3,1,7],[-1,1,1])
+print(V.line_intersection(L))
+
+
+# for labda in [-1,0,1]:
+#     for mu in [-1,0,1]:
+#         x = -.5 + 2 * labda + 1.5*mu
+#         y = labda
+#         z = mu
+#         print(f'labda {labda}, mu {mu}: x={x}, y = {y}, z = {z},   equation={-2*x+4*y+3*z}')
