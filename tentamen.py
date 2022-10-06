@@ -4,8 +4,10 @@ import quaternion
 from line import VectorLine
 from plane import Plane, VectorPlane
 from transformations import Axis, axis_rotation_matrix, plane_mirror_matrix, plane_projection_matrix
+from quatern import Quaternion, QuaternionTable, RotationQuaternion
 
 def opgave1():
+    print(f'*** OPGAVE 1 ***')
     a = [3,-2,0]
     b = [-2,0,1]
     c = np.cross(a, b)
@@ -18,6 +20,7 @@ def opgave1():
     print(f'opgave 1c: afstand: {distance:.3f}')
 
 def opgave2():
+    print(f'\n*** OPGAVE 2 ***')
     vlak = Plane(2,-1,0,0)
     P = plane_projection_matrix(vlak)
     print(f'opgave 2a (*5):\n{P*5}')
@@ -26,29 +29,26 @@ def opgave2():
     B = np.dot(S,P)
     print(f'opgave 2c (*5):\n{B*5}')
 
-def qstr(q):
-    return(f'{q.w:.3f} + {q.x:.3f}i + {q.y:.3f}j + {q.z:.3f}k')
-
 def opgave3():
-    p = np.quaternion(0, 2, 0,-1)    
-    print(f'opgave 3a: {qstr(p)}')
-    cos45= math.cos(math.radians(45))
-    sin45= math.sin(math.radians(45))
-    qr = np.quaternion(cos45, -4.0/5*sin45, 0, 3.0/5*sin45)
-    print(f'opgave 3b: {qstr(qr)}')
-    qrT = np.quaternion(cos45, +4.0/5*sin45, 0, -3.0/5*sin45)
-    print(f'opgave 3c: {qstr(qrT)}')
-    qrT_P = np.multiply(p, qrT)
-    print(f'opgave 4a(1): {qstr(qrT_P)}')
-    
+    print(f'\n*** OPGAVE 3 ***')
+    p = Quaternion(0, 2, 0,-1)    
+    print(f'opgave 3a: {p}')
+    qr = RotationQuaternion(90, [-4,0,3])
+    print(f'opgave 3b: {qr}')
+    qrT = qr.conjugate()
+    print(f'opgave 3c: {qrT}')
+    P_qrT = p*qrT
+    print(f'opgave 3d(1): deelresultaat {P_qrT}')
+    print('tabel:\n', QuaternionTable(p,qrT).table)
+    qr_P_qrT=qr*P_qrT
+    print(f'opgave 3d(2): eindresultaat is {qr_P_qrT}')
+    print('tabel:\n', QuaternionTable(qr, P_qrT).table)    
+    print(f'de afbeelding van P wordt dus {[round(qr_P_qrT[i],6) for i in range(1,4)]}')
 
 def opgave4():
+    print(f'\n*** OPGAVE 4 ***')
     M = np.array([[3,7,-1],[4,2,0],[0,1,-2]])
-    print(f'opgave 4a: {np.linalg.det(M)}')
-
-
-    
-
+    print(f'opgave 4a: {round(np.linalg.det(M),5)}')
 
 def tentamen():
     opgave1()

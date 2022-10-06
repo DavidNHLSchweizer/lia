@@ -1,12 +1,31 @@
 from __future__ import annotations
+import math
 import numpy as np
 import quaternion
 import pandas as pd
 
+PRECISION = 1e-6
+def is_almost_integer(value:float)->bool:
+    return abs(round(value, 0)-value)<=PRECISION
+
+def is_almost_zero(value:float)->bool:
+    return is_almost_integer(value) and abs(round(value, 0))<=PRECISION
+
+def quaternion_unit(index: int)->str:
+    strings = ['','i','j','k']
+    return strings[index]
+
 def quaternion_string(value: float, index: int)->str:
-    suffixes=['','i','j','k']
-    if index>=0 and index < 4:
-        return f'{value:.3f}{suffixes[index]}'
+    def display_value(value):
+        if isinstance(value,float):
+            if is_almost_integer(value):
+                return str(round(value))
+            else: 
+                return f'{value:.3f}'
+        else:
+            return str(value)   
+    if index>=0 and index < 4:        
+        return f'{display_value(value)}{quaternion_unit(index)}'
     return None
 
 def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, index1, index2)->str:
@@ -35,6 +54,22 @@ class Quaternion:
     def conjugate(self)->Quaternion:
         return Quaternion(self.w,-self.x,-self.y,-self.z)
     def __str__(self):
+        def join_value(value, index, first)->str:
+            plusmin=['-', '+']
+            if is_almost_zero(value):
+                return ''            
+            elif first:
+                return quaternion_string(value,index)
+            else:
+                return f' {plusmin[value>=0]} ' + quaternion_string(abs(value),index)
+        result = ''
+        first = True
+        for i in range(4):
+            result = result + join_value(self[i],i,first)
+            if len(result) > 0:
+                first = False
+        return result
+    def __repr__(self):
         return '+'.join(quaternion_string(self[i],i) for i in range(4))
     def __add__(self, q2: Quaternion)->Quaternion:
         return Quaternion(self.w+q2.w,self.x+q2.x,self.y+q2.y,self.z+q2.z)
@@ -55,6 +90,17 @@ class Quaternion:
             case 2: return self.y
             case 3: return self.z
         return None
+
+class RotationQuaternion(Quaternion):
+    def __init__(self, degrees: float, vector: list[float]):
+        self.degrees = degrees
+        self.vector=np.array(vector)
+        self.unit_vector = self.vector / np.linalg.norm(self.vector)
+        halftheta = math.radians(0.5 * degrees)
+        sinhalftheta = math.sin(halftheta)
+        super().__init__(math.cos(halftheta), sinhalftheta*self.unit_vector[0], sinhalftheta*self.unit_vector[1], sinhalftheta*self.unit_vector[2])
+
+
 
 class QuaternionTable:
     def __init__(self,q1: Quaternion, q2: Quaternion):
