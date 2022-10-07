@@ -56,3 +56,43 @@ def axis_rotation_matrix(axis: Axis, degrees: float, clockwise: bool)->np.array:
             r2 = np.array([math.sin(rads), math.cos(rads), 0])
             r3 = [0,0,1]
     return np.array([r1,r2,r3])
+
+class AffineMatrix:
+    def __init__(self, M: np.array):        
+        lastcolumn = []
+        for _ in range(len(M)):
+            lastcolumn.append([0])
+        self.matrix = np.append(M, np.array(lastcolumn),axis=1)
+        lastrow=[]
+        for _ in range(len(M[0]-1)):
+            lastrow.append(0)
+        lastrow.append(1)
+        self.matrix = np.r_[self.matrix, [np.array(lastrow)]]
+    def transform(self, vector: np.array)->np.array:        
+        affine_vector = np.append(np.copy(vector), 1)
+        return np.dot(self.matrix,affine_vector)[:-1]
+
+class TranslationMatrix(AffineMatrix):
+    def __init__(self, vector: np.array):        
+        super().__init__(np.identity(len(vector)))
+        lastcol = len(vector)
+        for row, value in enumerate(vector):
+            self.matrix[row][lastcol] = value
+
+M = plane_mirror_matrix(Plane(2,-1,3,0))
+print(M*14)
+AM = AffineMatrix(M)
+print(14*AM.matrix)
+print(AM.transform([4,6,-1]))
+print(14*AM.transform([4,6,-1]))
+# TM = TranslationMatrix([5,6])
+# print(TM.matrix)
+# print(TM.transform([1,2]))
+
+# TM = TranslationMatrix([5,6,2])
+# print(TM.matrix)
+
+
+# TM = TranslationMatrix([4,5,6])
+# print(TM.matrix)
+# print(TM.transform([1,2,3]))

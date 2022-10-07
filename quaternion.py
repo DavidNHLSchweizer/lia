@@ -1,8 +1,15 @@
 from __future__ import annotations
+from enum import IntEnum
 import math
 import numpy as np
-import quaternion
 import pandas as pd
+
+class QuaternionUnit(IntEnum):
+    R = 0
+    i = 1
+    j = 2
+    k = 3
+QU=QuaternionUnit
 
 PRECISION = 1e-6
 def is_almost_integer(value:float)->bool:
@@ -11,11 +18,10 @@ def is_almost_integer(value:float)->bool:
 def is_almost_zero(value:float)->bool:
     return is_almost_integer(value) and abs(round(value, 0))<=PRECISION
 
-def quaternion_unit(index: int)->str:
-    strings = ['','i','j','k']
-    return strings[index]
+def quaternion_unit(qu: QuaternionUnit)->str:
+    return '' if qu == QU.R else qu.name      
 
-def quaternion_string(value: float, index: int)->str:
+def quaternion_string(value: float, qu: QuaternionUnit)->str:
     def display_value(value):
         if isinstance(value,float):
             if is_almost_integer(value):
@@ -24,48 +30,47 @@ def quaternion_string(value: float, index: int)->str:
                 return f'{value:.3f}'
         else:
             return str(value)   
-    if index>=0 and index < 4:        
-        return f'{display_value(value)}{quaternion_unit(index)}'
-    return None
+    return f'{display_value(value)}{quaternion_unit(qu)}'
 
-def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, index1, index2)->str:
-    result_index= [[0, 1, 2, 3],
-                   [1, 0, 3, 2],
-                   [2, 3, 0, 1],
-                   [3, 2, 1, 0]]
+def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, qu1: QuaternionUnit, qu2: QuaternionUnit)->str:
+    result_index= [[QU.R, QU.i, QU.j, QU.k],
+                   [QU.i, QU.R, QU.k, QU.j],
+                   [QU.j, QU.k, QU.R, QU.i],
+                   [QU.k, QU.j, QU.i, QU.R]]
     multipliers=[[1,1,1,1], [1,-1,1,-1], [1,-1,-1,1], [1,1,-1,-1]]
-    return quaternion_string(multipliers[index1][index2] * q1[index1] * q2[index2], result_index[index1][index2])
+    return quaternion_string(multipliers[qu1][qu2] * q1[qu1] * q2[qu2], result_index[qu1][qu2])
+
 
 class Quaternion:
     def __init__(self, a:float,b:float,c:float,d:float):
-        self._q = np.quaternion(a,b,c,d)
+        self._q = np.array([a,b,c,d])
     @property
     def w(self)->float:
-        return self._q.w
+        return self._q[QU.R]
     @property
     def x(self)->float:
-        return self._q.x
+        return self._q[QU.i]
     @property
     def y(self)->float:
-        return self._q.y
+        return self._q[QU.j]
     @property
     def z(self)->float:
-        return self._q.z
+        return self._q[QU.k]
     def conjugate(self)->Quaternion:
         return Quaternion(self.w,-self.x,-self.y,-self.z)
     def __str__(self):
-        def join_value(value, index, first)->str:
+        def join_value(value, qu, first)->str:
             plusmin=['-', '+']
             if is_almost_zero(value):
                 return ''            
             elif first:
-                return quaternion_string(value,index)
+                return quaternion_string(value,qu)
             else:
-                return f' {plusmin[value>=0]} ' + quaternion_string(abs(value),index)
+                return f' {plusmin[value>=0]} ' + quaternion_string(abs(value),qu)
         result = ''
         first = True
-        for i in range(4):
-            result = result + join_value(self[i],i,first)
+        for qu in QU:
+            result = result + join_value(self[qu],qu,first)
             if len(result) > 0:
                 first = False
         return result
@@ -100,48 +105,24 @@ class RotationQuaternion(Quaternion):
         sinhalftheta = math.sin(halftheta)
         super().__init__(math.cos(halftheta), sinhalftheta*self.unit_vector[0], sinhalftheta*self.unit_vector[1], sinhalftheta*self.unit_vector[2])
 
-
+class PointQuaternion(Quaternion):
+    def __init__(self, point: list[float]):
+        super().__init__(0, point[0], point[1], point[2])
+    def transform(self, rq: RotationQuaternion)->list[float]:
+        p_qrT = self * rq.conjugate()
+        qr_p_qrT = rq * p_qrT 
+        return [qr_p_qrT[qu] for qu in [QU.i,QU.j,QU.k]]
 
 class QuaternionTable:
-    def __init__(self,q1: Quaternion, q2: Quaternion):
-        self._q1 = q1
-        self._q2 = q2
-        self.table  = self._create_table()
-    def _create_table(self)->pd.DataFrame:
-        index=self.__as_strings(self._q1)
-        columns = self.__as_strings(self._q2)
+    def __init__(self, q1: Quaternion, q2: Quaternion):
+        self.table  = self._create_table(q1,q2)
+    def _create_table(self, q1: Quaternion, q2: Quaternion)->pd.DataFrame:
         data=[]
-        for i in range(4):
+        for qu1 in QU:
             row=[]
-            for j in range(4):
-                row.append(quaternion_multiplication_str(self._q1, self._q2, i, j))
+            for qu2 in QU:
+                row.append(quaternion_multiplication_str(q1, q2, qu1, qu2))
             data.append(row)
+        index = [quaternion_string(q1[qu],qu) for qu in QU]
+        columns = [quaternion_string(q2[qu],qu) for qu in QU]
         return pd.DataFrame(data=data, index=index, columns=columns)
-    def __table_value(self, i1:int,i2:int)->str:
-        value = self._q1[i1]*self._q2[i2]
-        return quaternion_string(value,1)
-    def __as_strings(self,q: Quaternion)->list[str]:
-        return [quaternion_string(q[i],i) for i in range(4)]
-        
-
-
-q1 = Quaternion(1,2,3,4)
-q2=Quaternion(-1,2,-1,3)
-# print(f'q1={q1} q2={q2}\nconj: {q1.conjugate()}  {q2.conjugate()} \nsum: {q1+q2} \nsub: {q1-q2}')
-# print(f'neg: {-q1}   {-q2}')
-# print(f'mult: {q1*q2}')
-
-a=Quaternion(0,2,-4,5)
-b=Quaternion(7,2,1,0)
-QT=QuaternionTable(a,b)
-print(QT.table)
-print(a*b)
-
-c=Quaternion(-16,-2,3,2)
-d=Quaternion(-1,0,4,2)
-# 
-# print([c[i] for i in range(4)])
-
-QT=QuaternionTable(c,d)
-print(QT.table)
-print(c*d)

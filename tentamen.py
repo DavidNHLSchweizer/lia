@@ -1,10 +1,8 @@
-import math
 import numpy as np
-import quaternion
 from line import VectorLine
 from plane import Plane, VectorPlane
-from transformations import Axis, axis_rotation_matrix, plane_mirror_matrix, plane_projection_matrix
-from quatern import Quaternion, QuaternionTable, RotationQuaternion
+from transformations import plane_mirror_matrix, plane_projection_matrix
+from quaternion import QU, PointQuaternion, Quaternion, QuaternionTable, RotationQuaternion
 
 def opgave1():
     print(f'*** OPGAVE 1 ***')
@@ -31,19 +29,19 @@ def opgave2():
 
 def opgave3():
     print(f'\n*** OPGAVE 3 ***')
-    p = Quaternion(0, 2, 0,-1)    
+    p = PointQuaternion([2, 0,-1])    
     print(f'opgave 3a: {p}')
     qr = RotationQuaternion(90, [-4,0,3])
     print(f'opgave 3b: {qr}')
     qrT = qr.conjugate()
     print(f'opgave 3c: {qrT}')
     P_qrT = p*qrT
-    print(f'opgave 3d(1): deelresultaat {P_qrT}')
-    print('tabel:\n', QuaternionTable(p,qrT).table)
-    qr_P_qrT=qr*P_qrT
-    print(f'opgave 3d(2): eindresultaat is {qr_P_qrT}')
-    print('tabel:\n', QuaternionTable(qr, P_qrT).table)    
-    print(f'de afbeelding van P wordt dus {[round(qr_P_qrT[i],6) for i in range(1,4)]}')
+    print(f'opgave 3d(1):')
+    print(f'tabel p * qrT ({P_qrT}):\n', QuaternionTable(p,qrT).table)
+    qr_P_qrT=qr*P_qrT   
+    print(f'tabel qr * p * qrT ({qr_P_qrT}):\n', QuaternionTable(qr, P_qrT).table)    
+    print(f'de afbeelding van P wordt dus {[round(qr_P_qrT[qu],6) for qu in QU if qu is not qu.R]}')
+    print(f'controle via PointQuaternion.transform: {p.transform(qr)}')
 
 def opgave4():
     print(f'\n*** OPGAVE 4 ***')

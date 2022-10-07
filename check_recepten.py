@@ -2,7 +2,7 @@ import math
 import numpy as np
 from line import Line, LineConvertor
 from plane import Plane
-from transformations import Axis, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix
+from transformations import AffineMatrix, Axis, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix
 
 def _print_projectie_line(L: Line, msg, factor=1):
     print(f'{msg}\nTransformatiematrix projectie:\n{factor*line_projection_matrix(L)}')
@@ -47,3 +47,12 @@ L1 = LineConvertor().vector_line_from_line(Line(10,3))
 L2 = LineConvertor().vector_line_from_line(Line(2,-1))
 print(L1.line_intersection(L2))
 voorbeeld_4_27_2()
+
+def voorbeeld_4_10_2_2():
+    M = plane_mirror_matrix(Plane(2,-1,3,0))
+    AM = AffineMatrix(M)
+    print('affiene matrix (*14):\n', 14*AM.matrix)
+    print('transform (*14): ', 14*AM.transform([4,6,-1]))
+
+voorbeeld_4_10_2_2()
+    
