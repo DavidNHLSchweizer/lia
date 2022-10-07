@@ -2,7 +2,7 @@ import math
 import numpy as np
 from line import Line, LineConvertor
 from plane import Plane
-from transformations import AffineMatrix, Axis, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix
+from transformations import AffineMatrix, Axis, TranslationMatrix, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix, rotation_matrix_2d
 
 def _print_projectie_line(L: Line, msg, factor=1):
     print(f'{msg}\nTransformatiematrix projectie:\n{factor*line_projection_matrix(L)}')
@@ -53,6 +53,48 @@ def voorbeeld_4_10_2_2():
     AM = AffineMatrix(M)
     print('affiene matrix (*14):\n', 14*AM.matrix)
     print('transform (*14): ', 14*AM.transform([4,6,-1]))
-
 voorbeeld_4_10_2_2()
+
+def voorbeeld_4_12_1():
+    print('--- hoofdstuk 4.12 voorbeeld 1 (2d) ---')
+    MT = TranslationMatrix([3,-1])
+    print(MT.matrix)
+    MRA = AffineMatrix(rotation_matrix_2d(30))
+    print(MRA.matrix)
+
+    v=[-1,2]
+    print('MA1: eerst roteren, dan translatie')
+    matrix1 = MT * MRA
+    print(matrix1.matrix)
+    print(matrix1.transform(v))
+    print('MA2: eerst translatie, dan roteren')
+    matrix2 = MRA * MT
+    print(matrix2.matrix)
+    print(matrix2.transform(v))
+def voorbeeld_4_12_2():
+    print('--- hoofdstuk 4.12 voorbeeld 2 (3d) ---')
+    MT = TranslationMatrix([3,-1, 1])
+    print(MT.matrix)
+    MSA = AffineMatrix(plane_mirror_matrix(Plane(2,-1,3,0)))
+    print(14*MSA.matrix)
+
+    v=[2,0,-1]
+    print('MA1: eerst spiegelen, dan translatie')
+    matrix1 = MT * MSA
+    print(14*matrix1.matrix)
+    print(14*matrix1.transform(v))
+    print('MA2: eerst translatie, dan spiegelen')
+    matrix2 = MSA * MT
+    print(14*matrix2.matrix)
+    print(14*matrix2.transform(v))
+
+
+voorbeeld_4_12_1()
+voorbeeld_4_12_2()
     
+def voorbeeld_5_1_2():
+    M = plane_mirror_matrix(Plane(2,-1,3,0))
+    print(14*M)
+    print(f'determinant is {np.linalg.det(M)}')
+    print(f'controle inverse:\n {np.dot(M,M)}')
+voorbeeld_5_1_2()
