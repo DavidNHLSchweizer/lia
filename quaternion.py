@@ -116,6 +116,8 @@ class PointQuaternion(Quaternion):
 class QuaternionTable:
     def __init__(self, q1: Quaternion, q2: Quaternion):
         self.table  = self._create_table(q1,q2)
+    def __str__(self):
+        return str(self.table)
     def _create_table(self, q1: Quaternion, q2: Quaternion)->pd.DataFrame:
         data=[]
         for qu1 in QU:

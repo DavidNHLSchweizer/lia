@@ -1,7 +1,8 @@
 import math
 import numpy as np
-from line import Line, LineConvertor
-from plane import Plane
+from line import Line, LineConvertor, VectorLine
+from plane import Plane, VectorPlane
+from quaternion import PointQuaternion, Quaternion, QuaternionTable, RotationQuaternion
 from transformations import AffineMatrix, Axis, TranslationMatrix, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix, rotation_matrix_2d
 
 def _print_projectie_line(L: Line, msg, factor=1):
@@ -92,9 +93,56 @@ def voorbeeld_4_12_2():
 voorbeeld_4_12_1()
 voorbeeld_4_12_2()
     
+# HOOFDSTUK 5 (DETERMINANT)
 def voorbeeld_5_1_2():
     M = plane_mirror_matrix(Plane(2,-1,3,0))
-    print(14*M)
-    print(f'determinant is {np.linalg.det(M)}')
-    print(f'controle inverse:\n {np.dot(M,M)}')
-voorbeeld_5_1_2()
+    print('*** hoofdstuk 5 (determinant) ***')
+    print(f'matrix:\n{14*M}')
+    print(f'determinant is {round(np.linalg.det(M),4)}')
+    print(f'controle inverse M*M (moet eenheidsmatrix zijn):\n {np.dot(M,M)}')
+
+def _voorbeeld(M, msg):
+    print(f'voorbeeld {msg}:\nmatrix =\n{M}\ndeterminant = {round(np.linalg.det(M),4)}')
+def voorbeeld_5_3_1():
+    _voorbeeld(np.array([[3,2],[4,-1]]), '5.3.1')
+def voorbeeld_5_4_1():
+    _voorbeeld(np.array([[3,2,1],[4,-1,0],[-2,4,2]]), '5.4.1')
+def voorbeeld_5_5_1():
+    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [-3,0,-1,1]]), '5.5.1')
+
+def receptenboek_hfst_5():
+    voorbeeld_5_1_2()
+    voorbeeld_5_3_1()
+    voorbeeld_5_4_1()
+    voorbeeld_5_5_1()
+    _voorbeeld([[-1,0,5],[4,2,2],[0,-1,1]], 'éerste')
+    _voorbeeld([[2,1,2],[4,2,2],[0,-1,1]], 'tweede')
+    _voorbeeld([[2,1,2],[-1,0,5],[0,-1,1]], 'derde')
+    _voorbeeld([[2,1,2],[-1,0,5],[4,2,2]], 'vierde')
+
+receptenboek_hfst_5()
+print(np.linalg.det([[-8,-3,4,5],[4,2,-2,-6],[-3,7,2,-3],[-2,-4,1,3]]))
+q1=Quaternion(3,2,1,-7)
+q2=Quaternion(0,1,5,1)
+print(QuaternionTable(q1,q2))
+print(q1*q2)
+print(104-16)
+# p = PointQuaternion([2,2,0])
+# Q = RotationQuaternion(42,[4,-2,4])
+
+
+# Q1=QuaternionTable(p,Q.conjugate())
+# print('\n', Q1.table)
+
+# Q2=QuaternionTable(Q,p*Q.conjugate())
+# print('\n', Q2.table)
+# print('\neindresultaat: ', p.transform(Q))
+
+c = np.cross([0,1,1/8.], [4,0,2])
+print(c)
+vlak_c = VectorPlane([6,-3,2], [0,1,1/8.], [4,0,2])
+P = np.array([-2,4,-1])
+snijpunt=vlak_c.line_intersection(VectorLine(P, c))
+print(snijpunt)
+distance=np.linalg.norm(snijpunt-P)
+print(f'opgave 1c: afstand: {distance:.3f}')
