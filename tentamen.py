@@ -4,6 +4,7 @@ from plane import Plane, VectorPlane
 from transformations import plane_mirror_matrix, plane_projection_matrix
 from quaternion import QU, PointQuaternion, Quaternion, QuaternionTable, RotationQuaternion
 
+#tentamen toetsweek T1 2022 (3 november 2022)
 def opgave1():
     print(f'*** OPGAVE 1 ***')
     a = [3,-2,0]
