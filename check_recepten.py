@@ -99,34 +99,52 @@ def voorbeeld_5_1_2():
     print('*** hoofdstuk 5 (determinant) ***')
     print(f'matrix:\n{14*M}')
     print(f'determinant is {round(np.linalg.det(M),4)}')
-    print(f'controle inverse M*M (moet eenheidsmatrix zijn):\n {np.dot(M,M)}')
+    print(f'controle inverse M*M (moet eenheidsmatrix zijn):\n {np.round(np.dot(M,M))}')
 
 def _voorbeeld(M, msg):
     print(f'voorbeeld {msg}:\nmatrix =\n{M}\ndeterminant = {round(np.linalg.det(M),4)}')
-def voorbeeld_5_3_1():
-    _voorbeeld(np.array([[3,2],[4,-1]]), '5.3.1')
 def voorbeeld_5_4_1():
-    _voorbeeld(np.array([[3,2,1],[4,-1,0],[-2,4,2]]), '5.4.1')
+    _voorbeeld(np.array([[3,2],[4,-1]]), '5.4.1')
 def voorbeeld_5_5_1():
-    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [-3,0,-1,1]]), '5.5.1')
+    _voorbeeld(np.array([[3,2,1],[4,-1,0],[-2,4,2]]), '5.5.1')
+def voorbeeld_5_6_1():
+    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [-3,0,-1,1]]), '5.6.1 eindresultaat')
+    _voorbeeld([[-1,0,5],[4,2,2],[0,-1,1]], 'eerste 3x3')
+    _voorbeeld([[2,1,2],[4,2,2],[0,-1,1]], 'tweede 3x3')
+    _voorbeeld([[2,1,2],[-1,0,5],[0,-1,1]], 'derde 3x3')
+    _voorbeeld([[2,1,2],[-1,0,5],[4,2,2]], 'vierde 3x3')
+
+def voorbeeld_5_7_2():
+    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [-3,0,-1,1]]), '5.7.2 oorspronkelijk')
+    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [0,2,0,3]]), '5.7.2 na stap 1')
+    _voorbeeld(np.array([[3,2,1,2],[4,-1,0,5],[-8,0,0,-2], [0,2,0,3]]), '5.7.2 na stap 2')
+    _voorbeeld(np.array([[4,-1,5],[-8,0,-2], [0,2,3]]), '5.7.2 voor stap 3')
+    _voorbeeld(np.array([[4,-1,5],[-8,0,-2], [8,0,13]]), '5.7.2 na stap 3')
+    _voorbeeld(np.array([[-8,-2], [8,13]]), '5.7.2 na stap 4')
+
+def voorbeeld_5_3_1():
+    M = np.array([[1,-1],[2,3]])
+    print('voorbeeld 5.3.1:')
+    _voorbeeld(M, '5.3.1 (oorspronkelijk)')
+    M_inv = np.linalg.inv(M)
+    _voorbeeld(5*M_inv, '5.3.1 (inverse *5)')
+    print(f'controle inverse M*M (moet eenheidsmatrix zijn):\n {np.round(np.dot(M, M_inv),3)}')
 
 def receptenboek_hfst_5():
     voorbeeld_5_1_2()
     voorbeeld_5_3_1()
     voorbeeld_5_4_1()
     voorbeeld_5_5_1()
-    _voorbeeld([[-1,0,5],[4,2,2],[0,-1,1]], 'éerste')
-    _voorbeeld([[2,1,2],[4,2,2],[0,-1,1]], 'tweede')
-    _voorbeeld([[2,1,2],[-1,0,5],[0,-1,1]], 'derde')
-    _voorbeeld([[2,1,2],[-1,0,5],[4,2,2]], 'vierde')
+    voorbeeld_5_6_1()
+    voorbeeld_5_7_2()
 
 receptenboek_hfst_5()
-print(np.linalg.det([[-8,-3,4,5],[4,2,-2,-6],[-3,7,2,-3],[-2,-4,1,3]]))
-q1=Quaternion(3,2,1,-7)
-q2=Quaternion(0,1,5,1)
-print(QuaternionTable(q1,q2))
-print(q1*q2)
-print(104-16)
+# print(np.linalg.det([[-8,-3,4,5],[4,2,-2,-6],[-3,7,2,-3],[-2,-4,1,3]]))
+# q1=Quaternion(3,2,1,-7)
+# q2=Quaternion(0,1,5,1)
+# print(QuaternionTable(q1,q2))
+# print(q1*q2)
+# print(104-16)
 # p = PointQuaternion([2,2,0])
 # Q = RotationQuaternion(42,[4,-2,4])
 

@@ -62,9 +62,7 @@ def hfst3():
     opgave_5_extra()
     opgave_6_extra()
     print('*** EINDE ***')
-    M=14*plane_projection_matrix(Plane(2,-3,1,0))
-    print(M)
-
+    
 if __name__ == '__main__':
     hfst3()
 
