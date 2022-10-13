@@ -40,7 +40,6 @@ def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, qu1: Quaternio
     multipliers=[[1,1,1,1], [1,-1,1,-1], [1,-1,-1,1], [1,1,-1,-1]]
     return quaternion_string(multipliers[qu1][qu2] * q1[qu1] * q2[qu2], result_index[qu1][qu2])
 
-
 class Quaternion:
     def __init__(self, a:float,b:float,c:float,d:float):
         self._q = np.array([a,b,c,d])
@@ -59,14 +58,16 @@ class Quaternion:
     def conjugate(self)->Quaternion:
         return Quaternion(self.w,-self.x,-self.y,-self.z)
     def __str__(self):
-        def join_value(value, qu, first)->str:
-            plusmin=['-', '+']
+        def join_value(value, qu, first)->str:            
+            def sign(value:float)->str:
+                plusmin=['-', '+']
+                return plusmin[1] if value>=0 else plusmin[0]
             if is_almost_zero(value):
                 return ''            
             elif first:
                 return quaternion_string(value,qu)
             else:
-                return f' {plusmin[value>=0]} ' + quaternion_string(abs(value),qu)
+                return f' {sign(value)} ' + quaternion_string(abs(value),qu)
         result = ''
         first = True
         for qu in QU:
@@ -82,12 +83,25 @@ class Quaternion:
         return Quaternion(self.w-q2.w,self.x-q2.x,self.y-q2.y,self.z-q2.z)
     def __neg__(self)->Quaternion:
         return Quaternion(-self.w,-self.x,-self.y,-self.z)
-    def __mul__(self,q2: Quaternion)->Quaternion:
-        return Quaternion(  self.w*q2.w - self.x*q2.x - self.y*q2.y - self.z*q2.z, 
+    def __mul__(self,q2)->Quaternion:
+        if isinstance(q2,Quaternion):
+            return Quaternion(  self.w*q2.w - self.x*q2.x - self.y*q2.y - self.z*q2.z, 
                             self.x*q2.w + self.w*q2.x + self.y*q2.z - self.z*q2.y,
                             self.w*q2.y - self.x*q2.z + self.y*q2.w + self.z*q2.x,
                             self.w*q2.z + self.x*q2.y - self.y*q2.x + self.z*q2.w
                         )
+        elif isinstance(q2,int|float):
+            return Quaternion(q2*self.w, q2*self.x,q2*self.y,q2*self.z)
+        else:
+            return None
+    def __rmul__(self,q2)->Quaternion:
+        # to support left-multiplication with numbers
+        if isinstance(q2,Quaternion):
+            return q2*self
+        elif isinstance(q2,int|float):
+            return Quaternion(q2*self.w, q2*self.x,q2*self.y,q2*self.z)
+        else:
+            return None   
     def __getitem__(self,index_value):
         match(index_value):
             case 0: return self.w
