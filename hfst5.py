@@ -1,7 +1,23 @@
+from tkinter import N
 import numpy as np
 
 def _print_determinant(msg, M):
     print(f'{msg}:\nmatrix =\n{M}\ndeterminant = {round(np.linalg.det(M),4)}')
+
+def vb_5_1_1():
+    A = np.array([[-1,5],[2,-3]])
+    _print_determinant('Voorbeeld 5.1.1 (inverse)', A)
+    A_inv = np.linalg.inv(A)
+    print(f'\ninverse (maal 7):\n{7*A_inv}\ncheck:\n{np.round(np.dot(A, A_inv),4)}')
+
+def vb_5_2():
+    _print_determinant('Voorbeeld 5.2 (ontwikkelen 3x3 determinant)', np.array([[-5,0,3],[4,2,-1],[1,6,2]]))
+    _print_determinant('Voorbeeld 5.2 (ontwikkelen 4x4 determinant =0)', np.array([[1,-2,3,2], [3,-6,0,7],[-2,4,1,5],[-1,2,2,-4]]))
+    _print_determinant('Voorbeeld 5.2 (ontwikkelen 4x4 determinant en vereenvoudigen)', np.array([[1,-2,3,2], [4,-6,9,6],[-2,1,1,5],[-1,2,2,-4]]))
+    
+def hfst5_voorbeelden():
+    vb_5_1_1()
+    vb_5_2()
 
 def opgaven_hfst5():
     _print_determinant('A', np.array([[1,-1],[2,3]]))
@@ -24,6 +40,9 @@ def extra_opgaven_hfst5():
 
 def hfst5():
     print('HOOFDSTUK 5\n')
+    print('VOORBEELDEN')
+    hfst5_voorbeelden()
+
     print('OPGAVEN')
     opgaven_hfst5()
     print('EXTRA OPGAVEN')
