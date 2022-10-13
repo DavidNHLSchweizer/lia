@@ -81,6 +81,8 @@ class AffineMatrix:
             self.matrix = np.r_[self.matrix, [np.array(lastrow)]]
         else:
             self.matrix = M
+    def __str__(self):
+        return str(self.matrix)
     def transform(self, vector: np.array)->np.array:        
         affine_vector = np.append(np.copy(vector), 1)
         return np.dot(self.matrix,affine_vector)[:-1]

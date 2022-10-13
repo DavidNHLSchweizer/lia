@@ -1,8 +1,8 @@
 import math
 import numpy as np
-from line import Line, VectorLine
+from line import Line
 
-from plane import Plane, PlaneConvertor
+from plane import Plane
 from transformations import Axis, axis_rotation_matrix, line_projection_matrix, plane_projection_matrix
 
 def _projectie_vlak(P: Plane, msg, factor=1):
@@ -46,7 +46,6 @@ def hfst3_voorbeelden():
     vb_3_5_1()
     vb_3_5_2()
     
-
 def _opgave1(M, msg):
     print(f'{msg}\ntransposed:\n{np.transpose(M)}')
 
@@ -64,9 +63,6 @@ def opgave1_extra():
 
 def opgave2_extra():
     _opgave2(np.array([[1,2],[2,4],[-1,2]]), np.array([[3,0,2],[4,-1,1]]), np.array([[2,-1,-2],[1,3,1],[0,5,6]]), 'extra opgave 2')
-
-
-  
 
 def opgave3():
     _print_rotation_axis(Axis.x, 62, True, [0,0,2], 'opgave 3')
