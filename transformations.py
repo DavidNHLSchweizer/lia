@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from enum import Enum, auto
 import math
 from pickle import FALSE
@@ -50,9 +51,16 @@ class Axis(Enum):
     x=auto()
     y=auto()
     z=auto()
-def axis_rotation_matrix(axis: Axis, degrees: float, clockwise: bool=False)->np.array:    
-    cos, sin = _get_cos_and_sin(degrees, clockwise)
-    match axis:
+
+@dataclass
+class AxisRotation:
+    axis: Axis = Axis.x
+    degrees: float = 0
+    clockwise: bool = False
+
+def axis_rotation_matrix(rotation: AxisRotation)->np.array:    
+    cos, sin = _get_cos_and_sin(rotation.degrees, rotation.clockwise)
+    match rotation.axis:
         case Axis.x:
             r1 = [1,0,0]
             r2 = np.array([0, cos, -sin])
@@ -66,6 +74,14 @@ def axis_rotation_matrix(axis: Axis, degrees: float, clockwise: bool=False)->np.
             r2 = np.array([sin, cos, 0])
             r3 = [0,0,1]
     return np.array([r1,r2,r3])
+
+def multiple_rotation_matrix(rotations: list[AxisRotation])->np.array:
+    # order of application == order in list, checked with https://www.andre-gaschler.com/rotationconverter/
+    result = np.identity(3)
+    for rotation in rotations:
+        M = axis_rotation_matrix(rotation)
+        result = np.dot(M, result)
+    return result
 
 class AffineMatrix:
     def __init__(self, M: np.array, copy_matrix = False):        
@@ -113,3 +129,6 @@ class TranslationMatrix(AffineMatrix):
 # TM = TranslationMatrix([4,5,6])
 # print(TM.matrix)
 # print(TM.transform([1,2,3]))
+
+M = multiple_rotation_matrix([AxisRotation(Axis.z,40), AxisRotation(Axis.y, 50), AxisRotation(Axis.x, 60)])
+print(M)
