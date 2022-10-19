@@ -4,6 +4,9 @@ import math
 import numpy as np
 import pandas as pd
 
+class QuaternionException(Exception):
+    pass
+
 class QuaternionUnit(IntEnum):
     R = 0
     i = 1
@@ -17,6 +20,8 @@ def is_almost_integer(value:float)->bool:
 
 def is_almost_zero(value:float)->bool:
     return is_almost_integer(value) and abs(round(value, 0))<=PRECISION
+def is_almost_one(value:float)->bool:
+    return is_almost_integer(value) and abs(1 - round(value, 0))<=PRECISION
 
 def quaternion_unit(qu: QuaternionUnit)->str:
     return '' if qu == QU.R else qu.name      
@@ -25,9 +30,19 @@ def quaternion_string(value: float, qu: QuaternionUnit)->str:
     def display_value(value):
         if isinstance(value,float):
             if is_almost_integer(value):
-                return str(round(value))
+                if is_almost_one(value):
+                    return ''
+                else:
+                    return str(round(value))
             else: 
-                return f'{value:.3f}'
+                return f'{value:.03f}'.rstrip('0')
+        elif isinstance(value, np.int32) and qu is not qu.R:
+            if value == 1:
+                return ''
+            elif value == -1:
+                return '-'
+            else:
+                return str(value)            
         else:
             return str(value)   
     return f'{display_value(value)}{quaternion_unit(qu)}'
@@ -74,9 +89,17 @@ class Quaternion:
             result = result + join_value(self[qu],qu,first)
             if len(result) > 0:
                 first = False
+        if not result:
+            result = '0'
         return result
+    def all_close(self, q2: Quaternion):
+        return np.allclose(self._q, q2._q)
     def __repr__(self):
         return '+'.join(quaternion_string(self[i],i) for i in range(4))
+    def __eq__(self, q2: Quaternion)->bool:
+        if not isinstance(q2, Quaternion):
+            return False
+        return np.array_equal(self._q, q2._q)
     def __add__(self, q2: Quaternion)->Quaternion:
         return Quaternion(self.w+q2.w,self.x+q2.x,self.y+q2.y,self.z+q2.z)
     def __sub__(self, q2: Quaternion)->Quaternion:
@@ -108,7 +131,7 @@ class Quaternion:
             case 1: return self.x
             case 2: return self.y
             case 3: return self.z
-        return None
+            case _: raise QuaternionException('invalid index for quaternion')
 
 class RotationQuaternion(Quaternion):
     def __init__(self, degrees: float, vector: list[float]):
@@ -130,6 +153,7 @@ class PointQuaternion(Quaternion):
 class QuaternionTable:
     def __init__(self, q1: Quaternion, q2: Quaternion):
         self.table  = self._create_table(q1,q2)
+        self.result = q1*q2
     def __str__(self):
         return str(self.table)
     def _create_table(self, q1: Quaternion, q2: Quaternion)->pd.DataFrame:
@@ -142,3 +166,4 @@ class QuaternionTable:
         index = [quaternion_string(q1[qu],qu) for qu in QU]
         columns = [quaternion_string(q2[qu],qu) for qu in QU]
         return pd.DataFrame(data=data, index=index, columns=columns)
+
