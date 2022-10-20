@@ -111,21 +111,13 @@ class VectorPlane:
         except:
             return None       
         
-    # def solve(self, V: np.array)->tuple(float,float):
-    #     matrix = np.array([[self.P[i], self.R1[i], self.R2[i]] for i in range(3)])
-    #     print
-    #     solution = np.linalg.solve(matrix, np.array([V[i] for i in range(3)]))
-    #     if round(solution[0], PRECISION) == 0:
-    #         return None
-    #     solution = solution/solution[0]
-    #     if np.allclose(np.dot(matrix,solution), V):
-    #         return (solution[1], solution[2])
-    #     else:
-    #         return None
     def line_intersection(self, VL: VectorLine)->np.array:
         matrix = np.array([[-VL.R[i], self.R1[i], self.R2[i]] for i in range(3)])
-        solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(3)]))
-        return VL.V(solution[0])
+        try:
+            solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(3)]))
+            return VL.V(solution[0])
+        except:
+            return None
 
 class PlaneConvertor:
     def vector_plane_from_plane(self, P: Plane)->VectorPlane:
@@ -139,5 +131,3 @@ class PlaneConvertor:
         normal = VP.normal_vector()
         return Plane(normal[0], normal[1], normal[2], np.inner(normal, VP.P))
     
-VP = VectorPlane([1,2,3], [1,2,3], [3,4,5])
-print(VP, VP.V(42,42))

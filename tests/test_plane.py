@@ -4,8 +4,9 @@ from re import L
 import pytest
 import numpy as np
 from lia import LAMBDA, MU, PRECISION, Axis
+from line import VectorLine
 from plane import Plane, PlaneConvertor, PlaneInvalidException, VectorPlane
-from lia_test_const import _TEST_VALUES, _TEST_VECTORS_2D, _TEST_VECTORS_3D, ABCD_VALUES, LABDA_MU_VALUES
+from lia_test_const import _TEST_VALUES, _TEST_VECTORS_2D, _TEST_VECTORS_3D, ABCD_VALUES, LABDA_MU_VALUES, TEST_PLANES
 
 #Plane tests
 def _test_init_plane(a,b,c,d):
@@ -92,21 +93,16 @@ def test_is_on_plane():
     for (a,b,c,d) in ABCD_VALUES:
         _test_is_on_plane(Plane(a,b,c,d))
 
-def _test_is_parallel(a,b,c,d,expected:list[bool]):
+def _test_is_parallel(a,b,c,d,px,py,pz):
     P = Plane(a,b,c,d)
-    assert P.is_parallel(Axis.x) == expected[0]
-    assert P.is_parallel(Axis.y) == expected[1]
-    assert P.is_parallel(Axis.z) == expected[2]
+    assert P.is_parallel(Axis.x) == px
+    assert P.is_parallel(Axis.y) == py
+    assert P.is_parallel(Axis.z) == pz
 
 def test_is_parallel():
-    _test_is_parallel(1,2,3,4,[False, False, False])
-    _test_is_parallel(0,2,3,4,[True, False, False])
-    _test_is_parallel(1,0,3,4,[False, True, False])
-    _test_is_parallel(1,2,0,4,[False, False, True])
-    _test_is_parallel(0,0,1,4,[True, True, False])
-    _test_is_parallel(0,1,0,4,[True, False, True])
-    _test_is_parallel(1,0,0,4,[False, True, True])
-
+    for tpp in TEST_PLANES: 
+        _test_is_parallel(tpp['a'],tpp['b'],tpp['c'],tpp['d'], tpp['px'],tpp['py'],tpp['pz'])
+     
 #plane vector tests
 def _test_init_plane_vector(P, R1, R2):
     VP = VectorPlane(P, R1, R2)
@@ -157,33 +153,59 @@ def test_plane_vector_V():
     _test_plane_vector_V(VectorPlane([1,2,3], [1,0,0], [0,1,0]))
     _test_plane_vector_V(VectorPlane([1,2,3], [1,2,3], [3,4,5]))
 
-def _test_is_on_plane(VP:VectorPlane):
+def _test_is_parallel_vector(P, R1, R2, px,py,pz):
+    VP = VectorPlane(P, R1, R2)
+    assert VP.is_parallel(Axis.x) == px
+    assert VP.is_parallel(Axis.y) == py
+    assert VP.is_parallel(Axis.z) == pz
+
+def test_is_parallel_vector():
+    for tpp in TEST_PLANES: 
+        _test_is_parallel_vector(tpp['P'],tpp['R1'],tpp['R2'],tpp['px'],tpp['py'],tpp['pz'])
+
+def __test_is_on_plane_vector(VP:VectorPlane, vector):
+    assert VP.is_on_plane(vector)
+    if VP.is_parallel(Axis.x):
+        assert VP.is_on_plane([vector[0]+0.1, vector[1], vector[2]])
+    else:
+        assert not VP.is_on_plane([vector[0]+0.1, vector[1], vector[2]])
+    if VP.is_parallel(Axis.y):
+        assert VP.is_on_plane([vector[0], vector[1]+0.1, vector[2]])
+    else:
+        assert not VP.is_on_plane([vector[0], vector[1]+0.1, vector[2]])
+    if VP.is_parallel(Axis.z):
+        assert VP.is_on_plane([vector[0], vector[1], vector[2]+0.1])
+
+    else:
+        assert not VP.is_on_plane([vector[0], vector[1], vector[2]+0.1])
+
+def _test_is_on_plane_vector(VP:VectorPlane):
+    P = PlaneConvertor().plane_from_vector_plane(VP)
     for labda in LABDA_MU_VALUES:
         for mu in LABDA_MU_VALUES:
-            assert VP.is_on_plane(VP.V(labda, mu))
+            __test_is_on_plane_vector(VP, VP.V(labda, mu))
 
-TEST_PLANES = [{'P':[1,2,3], 'R1':[0,1,1], 'R2':[0,1,2]}, 
-               {'P':[1,0,-1], 'R1':[1,0,0], 'R2':[0,1,0]}, 
-               {'P':[1,2,3], 'R1':[1,2,3], 'R2':[3,4,5]}, 
-               {'P':[1,0,-1], 'R1':[1,1,1], 'R2':[0,1,2]}, 
-              ]
-def test_is_on_plane():
+def test_is_on_plane_vector():
     for tp in TEST_PLANES:
-        _test_is_on_plane(VectorPlane(tp['P'], tp['R1'], tp['R2']))
+        _test_is_on_plane_vector(VectorPlane(tp['P'], tp['R1'], tp['R2']))
 
-def _test_is_not_on_plane(VP:VectorPlane):
-    print(VP, PlaneConvertor().plane_from_vector_plane(VP))
-    for labda in LABDA_MU_VALUES:
-        for mu in LABDA_MU_VALUES:
-            V = VP.V(labda, mu)
-            for i in range(3):
-                V2 = []
-                for j in range(3):
-                    V2.append(V[j]+ (0.1 if i == j else 0))
-                print(V2)
-                assert not VP.is_on_plane(V2)
+def _test_line_intersection_vector(VP: VectorPlane, VL: VectorLine):
+    intersection = VP.line_intersection(VL)
+    if intersection is not None:
+        assert VP.is_on_plane(intersection)
+        assert VL.is_on_line(intersection)
+    else:
+        assert np.inner(VP.normal_vector(),VL.R) == 0
 
-NOTE: dit moet worden aangepast, parallel moet worden getest. De variatie heeft geen zin als het parallel aan een as gebeurt
-def test_is_not_on_plane():
+def test_line_intersection_vector():
+    lines = []
+    for v1,v2 in  zip(_TEST_VECTORS_3D(10), _TEST_VECTORS_3D(10)):
+        lines.append(VectorLine(v1,v2))
     for tp in TEST_PLANES:
-        _test_is_not_on_plane(VectorPlane(tp['P'], tp['R1'], tp['R2']))
+        VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])
+        for line in lines:
+            _test_line_intersection_vector(VP,line)  
+        _test_line_intersection_vector(VP, VectorLine([0,0,-1], VP.R1))      
+        _test_line_intersection_vector(VP, VectorLine([0,0, -1], VP.R2))      
+
+    #TODO: test plane convertor code
