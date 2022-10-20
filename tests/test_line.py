@@ -201,7 +201,6 @@ def test_normal_vector_normal2D():
 def test_normal_vector_vertical2D():
     _test_normal_vector2D([1,0])
 def _test_intersection(L1, L2: VectorLine):
-    print(f'{L1}   {L2}')
     IS1 = L1.line_intersection(L2)
     IS2 = L2.line_intersection(L1)
     assert np.allclose(IS1, IS2)
@@ -210,11 +209,12 @@ def _test_intersection(L1, L2: VectorLine):
     assert L1.is_on_line(IS2)
     assert L2.is_on_line(IS2)
 def test_intersection2D():
-    for R1 in VECT_VALUES_2D:
-        L1 = VectorLine(_random_vector(2), R1)
-        for R2 in VECT_VALUES_2D:
-            if R1 is not R2:
-                L2 = VectorLine(_random_vector(2), R2)
+    lines = []
+    for P,R in  zip(_TEST_VECTORS_2D(10), _TEST_VECTORS_2D(10)):
+        lines.append(VectorLine(P,R))
+    for L1 in lines:
+        for L2 in lines:
+            if L1 is not L2:
                 _test_intersection(L1, L2)
         
 #--- lineconvertor tests

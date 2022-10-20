@@ -199,13 +199,13 @@ def _test_line_intersection_vector(VP: VectorPlane, VL: VectorLine):
 
 def test_line_intersection_vector():
     lines = []
-    for v1,v2 in  zip(_TEST_VECTORS_3D(10), _TEST_VECTORS_3D(10)):
-        lines.append(VectorLine(v1,v2))
+    for P,R in  zip(_TEST_VECTORS_3D(10), _TEST_VECTORS_3D(10)):
+        lines.append(VectorLine(P,R))
     for tp in TEST_PLANES:
         VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])
         for line in lines:
             _test_line_intersection_vector(VP,line)  
-        _test_line_intersection_vector(VP, VectorLine([0,0,-1], VP.R1))      
-        _test_line_intersection_vector(VP, VectorLine([0,0, -1], VP.R2))      
+        _test_line_intersection_vector(VP, VectorLine([VP.P[0]+1,VP.P[1]+1,VP.P[2]+1], VP.R1))      
+        _test_line_intersection_vector(VP, VectorLine([VP.P[0]+1,VP.P[1]+1,VP.P[2]+1], VP.R2))      
 
     #TODO: test plane convertor code
