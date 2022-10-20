@@ -237,3 +237,4 @@ def test_quaternion_table():
     _test_quaternion_table(Quaternion(0,2,3,4), Quaternion(0,-1,-1,2))
     _test_quaternion_table(Quaternion(0,0,0,1), Quaternion(1,-1,-1,2))
     _test_quaternion_table(Quaternion(1,0,0,0), Quaternion(1,-1,-1,2))
+    _test_quaternion_table(Quaternion(1,2,3,4), Quaternion(1,2,3,4))

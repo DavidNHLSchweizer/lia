@@ -1,6 +1,6 @@
 from __future__ import annotations
 import numpy as np
-from lia import LAMBDA, MU, angle, PRECISION
+from lia import LAMBDA, MU, Axis, angle, PRECISION
 from line import VectorLine
 
 class PlaneInvalidException(Exception):
@@ -31,26 +31,25 @@ class Plane:
     def normal_vector(self):
         return np.array([self.a,self.b,self.c])
     def x(self, y: float, z: float)->float:
-        if self.is_parallel_x():
+        if self.is_parallel(Axis.x):
             return None
         else:
             return (self.d - self.b*y - self.c*z) / self.a
     def y(self, x: float, z: float)->float:
-        if self.is_parallel_y():
+        if self.is_parallel(Axis.y):
             return None
         else:
             return (self.d - self.a*x - self.c*z) / self.b
     def z(self, x: float, y: float)->float:
-        if self.is_parallel_z():
+        if self.is_parallel(Axis.z):
             return None
         else:
             return (self.d - self.a*x - self.b*y) / self.c
-    def is_parallel_x(self):
-        return round(self.a,PRECISION) == 0
-    def is_parallel_y(self):
-        return round(self.b,PRECISION) == 0
-    def is_parallel_z(self):
-        return round(self.c,PRECISION) == 0
+    def is_parallel(self, axis: Axis):
+        match axis:
+            case Axis.x: return round(self.a,PRECISION) == 0
+            case Axis.y: return round(self.b,PRECISION) == 0
+            case Axis.z: return round(self.c,PRECISION) == 0
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
     
@@ -84,22 +83,49 @@ class VectorPlane:
     def V(self, labda: float, mu: float)->np.array:
         return np.array([self.P[i] + labda*self.R1[i] + mu*self.R2[i] for i in range(3)])    
     def is_on_plane(self, V: np.array)->bool:
-        return self.solve(V) is not None 
+        return self.solve(V) is not None         
+    def is_parallel(self, axis: Axis):
+        normal = self.normal_vector()
+        match axis:
+            case Axis.x: return round(normal[0],PRECISION) == 0
+            case Axis.y: return round(normal[1],PRECISION) == 0
+            case Axis.z: return round(normal[2],PRECISION) == 0
     def solve(self, V: np.array)->tuple(float,float):
-        matrix = np.array([[self.P[i], self.R1[i], self.R2[i]] for i in range(3)])
-        solution = np.linalg.solve(matrix, np.array([V[i] for i in range(3)]))
-        if round(solution[0], PRECISION) == 0:
-            return None
-        solution = solution/solution[0]
-        if np.allclose(np.dot(matrix,solution), V):
-            return (solution[1], solution[2])
-        else:
-            return None
+        #find non-singular set of coordinates to solve against
+        tries = [(0,1), (0,2), (1,2)]
+        found = False
+        for t1,t2 in tries:
+            matrix = [[self.R1[t1], self.R2[t1]], [self.R1[t2], self.R2[t2]]]
+            if np.linalg.det(matrix):
+                found = True
+                b = [V[t1]-self.P[t1], V[t2]-self.P[t2]]
+                break
+        if not found:
+            return None               
+        try:
+            labda_mu = np.linalg.solve(matrix, b)
+            if np.allclose(self.V(labda_mu[0], labda_mu[1]), V):
+                return labda_mu
+            else:
+                return None
+        except:
+            return None       
+        
+    # def solve(self, V: np.array)->tuple(float,float):
+    #     matrix = np.array([[self.P[i], self.R1[i], self.R2[i]] for i in range(3)])
+    #     print
+    #     solution = np.linalg.solve(matrix, np.array([V[i] for i in range(3)]))
+    #     if round(solution[0], PRECISION) == 0:
+    #         return None
+    #     solution = solution/solution[0]
+    #     if np.allclose(np.dot(matrix,solution), V):
+    #         return (solution[1], solution[2])
+    #     else:
+    #         return None
     def line_intersection(self, VL: VectorLine)->np.array:
         matrix = np.array([[-VL.R[i], self.R1[i], self.R2[i]] for i in range(3)])
         solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(3)]))
         return VL.V(solution[0])
-
 
 class PlaneConvertor:
     def vector_plane_from_plane(self, P: Plane)->VectorPlane:
@@ -113,3 +139,5 @@ class PlaneConvertor:
         normal = VP.normal_vector()
         return Plane(normal[0], normal[1], normal[2], np.inner(normal, VP.P))
     
+VP = VectorPlane([1,2,3], [1,2,3], [3,4,5])
+print(VP, VP.V(42,42))

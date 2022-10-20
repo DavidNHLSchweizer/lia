@@ -88,7 +88,6 @@ class VectorLine:
         solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(self.dim())]))
         return VL.V(solution[0])
 
-
 class LineConvertor:    
     def vector_line_from_line(self, l: Line)->VectorLine:
         if isinstance(l, VerticalLine):

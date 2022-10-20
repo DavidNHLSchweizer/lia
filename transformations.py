@@ -4,6 +4,7 @@ from enum import Enum, auto
 import math
 from pickle import FALSE
 import numpy as np
+from lia import Axis
 from line import Line, LineConvertor, VectorLine
 from plane import Plane, PlaneConvertor
 
@@ -46,11 +47,6 @@ def _get_cos_and_sin(degrees: float, clockwise: bool=False)->tuple:
 def rotation_matrix_2d(degrees: float, clockwise: bool=False)->np.array:
     cos, sin = _get_cos_and_sin(degrees, clockwise)
     return np.array([[cos, -sin], [sin, cos]])
-
-class Axis(Enum):
-    x=auto()
-    y=auto()
-    z=auto()
 
 @dataclass
 class AxisRotation:
