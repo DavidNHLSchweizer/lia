@@ -14,6 +14,10 @@ class QuaternionUnit(IntEnum):
     k = 3
 QU=QuaternionUnit
 
+def quaternion_unit_str(qu: QuaternionUnit)->str:
+    return '' if qu == QU.R else qu.name      
+
+
 PRECISION = 1e-6
 def is_almost_integer(value:float)->bool:
     return abs(round(value, 0)-value)<=PRECISION
@@ -23,8 +27,52 @@ def is_almost_zero(value:float)->bool:
 def is_almost_one(value:float)->bool:
     return is_almost_integer(value) and abs(1 - round(value, 0))<=PRECISION
 
-def quaternion_unit(qu: QuaternionUnit)->str:
-    return '' if qu == QU.R else qu.name      
+class QuaternionElement:
+    def __init__(self, value: float, unit: QuaternionUnit):
+        self._value = value
+        self._unit = unit
+    @property
+    def value(self): 
+        return self._value
+    @property
+    def unit(self):
+        return self._unit
+    def __display_value(self, value, unit):
+        if isinstance(value,float):
+            if is_almost_integer(value):
+                if is_almost_one(value):
+                    return ''
+                else:
+                    return str(round(value))
+            else: 
+                return f'{value:.03f}'.rstrip('0')
+        elif isinstance(value, np.int32|int) and unit is not QU.R:
+            if value == 1:
+                return ''
+            elif value == -1:
+                return '-'
+            else:
+                return str(value)            
+        else:
+            return str(value)   
+    def __str__(self):
+        return f'{self.__display_value(self.value, self.unit)}{quaternion_unit_str(self.unit)}'
+    def __mul__(self, qe2: QuaternionElement)->QuaternionElement:
+        multipliers=[[1,1,1,1], [1,-1,1,-1], [1,-1,-1,1], [1,1,-1,-1]]
+        result_unit = [[QU.R, QU.i, QU.j, QU.k], [QU.i, QU.R, QU.k, QU.j], [QU.j, QU.k, QU.R, QU.i], [QU.k, QU.j, QU.i, QU.R]]
+        return QuaternionElement(multipliers[self.unit][qe2.unit]*self.value*qe2.value, result_unit[self.unit][qe2.unit])
+
+for qu in QuaternionUnit:
+    qe = QuaternionElement(1, qu)
+    print(f'{str(qe)}')
+for qu1 in QuaternionUnit:
+    for value1 in [-math.pi, -2, -1, 0, 1, 2, math.pi]:
+        for qu2 in QuaternionUnit:
+#             for value2 in [-math.pi, -2, -1, 0, 1, 2, math.pi]:                 
+            qe1 = QuaternionElement(value1, qu1)
+            qe2 = QuaternionElement(1.0, qu2)
+            print(f'{qe1}*{qe2} =  {qe1*qe2}')
+
 
 def quaternion_string(value: float, qu: QuaternionUnit)->str:
     def display_value(value):
@@ -45,7 +93,7 @@ def quaternion_string(value: float, qu: QuaternionUnit)->str:
                 return str(value)            
         else:
             return str(value)   
-    return f'{display_value(value)}{quaternion_unit(qu)}'
+    return f'{display_value(value)}{quaternion_unit_str(qu)}'
 
 def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, qu1: QuaternionUnit, qu2: QuaternionUnit)->str:
     result_index= [[QU.R, QU.i, QU.j, QU.k],
