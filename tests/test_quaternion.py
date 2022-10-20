@@ -1,8 +1,60 @@
 import math
 import numpy as np
 import pytest
-from quaternion import QU, PointQuaternion, Quaternion, QuaternionException, QuaternionTable, RotationQuaternion
+from quaternion import QU, PointQuaternion, Quaternion, QuaternionElement, QuaternionException, QuaternionTable, QuaternionUnit, RotationQuaternion
 from transformations import Axis, AxisRotation, axis_rotation_matrix, multiple_rotation_matrix
+
+#QUATERNION ELEMENT (SUPPORT CLASS) TESTS
+TINY=1e-9
+VALUES_FOR_ELEMENTS = [
+                        {'value': -math.pi, 'unit': QU.R, 's': '-3.142'}, {'value': -math.pi, 'unit': QU.i, 's': '-3.142i'}, {'value': -math.pi, 'unit': QU.j, 's': '-3.142j'}, {'value': -math.pi, 'unit': QU.k, 's': '-3.142k'},
+                        {'value': -2-TINY, 'unit': QU.R, 's': '-2'}, {'value': -2-TINY, 'unit': QU.i, 's': '-2i'}, {'value': -2-TINY, 'unit': QU.j, 's': '-2j'}, {'value': -2-TINY, 'unit': QU.k, 's': '-2k'},
+                        {'value': -2, 'unit': QU.R, 's': '-2'}, {'value': -2, 'unit': QU.i, 's': '-2i'}, {'value': -2, 'unit': QU.j, 's': '-2j'}, {'value': -2, 'unit': QU.k, 's': '-2k'},
+                        {'value': -2+TINY, 'unit': QU.R, 's': '-2'}, {'value': -2+TINY, 'unit': QU.i, 's': '-2i'}, {'value': -2+TINY, 'unit': QU.j, 's': '-2j'}, {'value': -2+TINY, 'unit': QU.k, 's': '-2k'},
+                        {'value': -1-TINY, 'unit': QU.R, 's': '-1'}, {'value': -1-TINY, 'unit': QU.i, 's': '-i'}, {'value': -1-TINY, 'unit': QU.j, 's': '-j'}, {'value': -1-TINY, 'unit': QU.k, 's': '-k'},
+                        {'value': -1, 'unit': QU.R, 's': '-1'}, {'value': -1, 'unit': QU.i, 's': '-i'}, {'value': -1, 'unit': QU.j, 's': '-j'}, {'value': -1, 'unit': QU.k, 's': '-k'},
+                        {'value': -1+TINY, 'unit': QU.R, 's': '-1'}, {'value': -1+TINY, 'unit': QU.i, 's': '-i'}, {'value': -1+TINY, 'unit': QU.j, 's': '-j'}, {'value': -1+TINY, 'unit': QU.k, 's': '-k'},
+                        {'value': -TINY, 'unit': QU.R, 's': '0'}, {'value': -TINY, 'unit': QU.i, 's': '0'}, {'value': -TINY, 'unit': QU.j, 's': '0'}, {'value': -TINY, 'unit': QU.k, 's': '0'},
+                        {'value': 0, 'unit': QU.R, 's': '0'}, {'value': 0, 'unit': QU.i, 's': '0'}, {'value': 0, 'unit': QU.j, 's': '0'}, {'value': 0, 'unit': QU.k, 's': '0'},
+                        {'value': TINY, 'unit': QU.R, 's': '0'}, {'value': TINY, 'unit': QU.i, 's': '0'}, {'value': TINY, 'unit': QU.j, 's': '0'}, {'value': TINY, 'unit': QU.k, 's': '0'},
+                        {'value': 1-TINY, 'unit': QU.R, 's': '1'}, {'value': 1-TINY, 'unit': QU.i, 's': 'i'}, {'value': 1-TINY, 'unit': QU.j, 's': 'j'}, {'value': 1-TINY, 'unit': QU.k, 's': 'k'},
+                        {'value': 1, 'unit': QU.R, 's': '1'}, {'value': 1, 'unit': QU.i, 's': 'i'}, {'value': 1, 'unit': QU.j, 's': 'j'}, {'value': 1, 'unit': QU.k, 's': 'k'},
+                        {'value': 1+TINY, 'unit': QU.R, 's': '1'}, {'value': 1+TINY, 'unit': QU.i, 's': 'i'}, {'value': 1+TINY, 'unit': QU.j, 's': 'j'}, {'value': 1+TINY, 'unit': QU.k, 's': 'k'},
+                        {'value': 2-TINY, 'unit': QU.R, 's': '2'}, {'value': 2-TINY, 'unit': QU.i, 's': '2i'}, {'value': 2-TINY, 'unit': QU.j, 's': '2j'}, {'value': 2-TINY, 'unit': QU.k, 's': '2k'},
+                        {'value': 2, 'unit': QU.R, 's': '2'}, {'value': 2, 'unit': QU.i, 's': '2i'}, {'value': 2, 'unit': QU.j, 's': '2j'}, {'value': 2, 'unit': QU.k, 's': '2k'},
+                        {'value': 2+TINY, 'unit': QU.R, 's': '2'}, {'value': 2+TINY, 'unit': QU.i, 's': '2i'}, {'value': 2+TINY, 'unit': QU.j, 's': '2j'}, {'value': 2+TINY, 'unit': QU.k, 's': '2k'},
+                        {'value': math.pi, 'unit': QU.R, 's': '3.142'}, {'value': math.pi, 'unit': QU.i, 's': '3.142i'}, {'value': math.pi, 'unit': QU.j, 's': '3.142j'}, {'value': math.pi, 'unit': QU.k, 's': '3.142k'}
+                   ]
+def _test_init_element(value, unit, expected_string):
+    qe = QuaternionElement(value, unit)
+    assert qe.value == value
+    assert qe.unit == unit
+    assert str(qe) == expected_string
+
+def test_init_elements():
+    for vfe in VALUES_FOR_ELEMENTS:
+        _test_init_element(vfe['value'], vfe['unit'], vfe['s'])
+
+def _test_mul_elements(qe1, qe2, q_expected):
+    q = qe1 * qe2
+    assert str(q)==str(q_expected)
+
+def test_mul_elements():
+    for vfe1 in VALUES_FOR_ELEMENTS:
+        for vfe2 in VALUES_FOR_ELEMENTS:
+            expected_value = vfe1['value'] * vfe2['value']
+            if vfe1['unit'] == QU.R:
+                expected = QuaternionElement(expected_value, vfe2['unit'])
+            elif vfe2['unit'] == QU.R:
+                expected = QuaternionElement(expected_value, vfe1['unit'])
+            elif vfe1['unit'] == vfe2['unit']: 
+                expected = QuaternionElement(-expected_value, QU.R)
+            else:
+                match vfe1['unit']:
+                    case QU.i: expected = QuaternionElement(expected_value, QU.k) if vfe2['unit']==QU.j else QuaternionElement(-expected_value, QU.j)
+                    case QU.j: expected = QuaternionElement(expected_value, QU.i) if vfe2['unit']==QU.k else QuaternionElement(-expected_value, QU.k)
+                    case QU.k: expected = QuaternionElement(expected_value, QU.j) if vfe2['unit']==QU.i else QuaternionElement(-expected_value, QU.i)                    
+            _test_mul_elements(QuaternionElement(vfe1['value'], vfe1['unit']), QuaternionElement(vfe2['value'], vfe2['unit']), expected)
 
 TESTQ = [{'q': [1,2,3,4], 's':'1+2i+3j+4k'},{'q':[1,0,3,4], 's':'1+3j+4k'}, {'q':[1,2,0,4], 's':'1+2i+4k'}, {'q':[1,2,3,0], 's':'1+2i+3j'}, {'q':[0,0,0,0], 's':'0'}, {'q':[1,0,0,0], 's':'1'}, {'q':[0,1,0,0], 's':'i'}, 
         {'q':[0,0,1,0], 's':'j'}, {'q':[0,0,0,1], 's':'k'}, {'q':[1,1,0,0], 's':'1+i'}, {'q':[1,0,1,0], 's':'1+j'}, {'q':[1,0,0,1], 's':'1+k'}, {'q':[1,1,1,0], 's':'1+i+j'}, {'q':[1,0,1,1], 's':'1+j+k'}, {'q':[1,1,0,1], 's':'1+i+k'},
@@ -13,15 +65,15 @@ def Q(tq):
     return Quaternion(tq['q'][0], tq['q'][1], tq['q'][2], tq['q'][3])
 
 #QUATERNION BASE CLASS TESTS
-def _test_init(a,b,c,d):
+def _test_init_quaternion(a,b,c,d):
     q = Quaternion(a,b,c,d)
     assert q.w == a
     assert q.x == b
     assert q.y == c
     assert q.z == d
-def test_init():
+def test_init_quaternion():
     for tq in TESTQ:
-        _test_init(tq['q'][0], tq['q'][1], tq['q'][2], tq['q'][3])
+        _test_init_quaternion(tq['q'][0], tq['q'][1], tq['q'][2], tq['q'][3])
 
 def _test_index(a,b,c,d):
     q = Quaternion(a,b,c,d)
@@ -176,9 +228,12 @@ def test_point_quaternion_transform_xyz():
 def _test_quaternion_table(q1, q2: Quaternion):
     QT = QuaternionTable(q1, q2)
     assert QT.result == q1*q2
-    for row in range(4):
-        for col in range(4):
-            assert QT.table[row][col] == q1[row]*q2[col]
+    for row in QuaternionUnit:
+        for col in QuaternionUnit:           
+            assert QT.table.values[row][col] == str(QuaternionElement(q1[row],row) * QuaternionElement(q2[col], col))
 
 def test_quaternion_table():
     _test_quaternion_table(Quaternion(1,2,3,4), Quaternion(0,-1,-1,2))
+    _test_quaternion_table(Quaternion(0,2,3,4), Quaternion(0,-1,-1,2))
+    _test_quaternion_table(Quaternion(0,0,0,1), Quaternion(1,-1,-1,2))
+    _test_quaternion_table(Quaternion(1,0,0,0), Quaternion(1,-1,-1,2))

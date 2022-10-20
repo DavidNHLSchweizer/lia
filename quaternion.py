@@ -28,6 +28,8 @@ def is_almost_one(value:float)->bool:
     return is_almost_integer(value) and abs(1 - round(value, 0))<=PRECISION
 
 class QuaternionElement:
+#SUPPORT CLASS mainly for string display 
+#also supports (basic) multiplication to generate QuaternionTable
     def __init__(self, value: float, unit: QuaternionUnit):
         self._value = value
         self._unit = unit
@@ -40,8 +42,10 @@ class QuaternionElement:
     def __display_value(self, value, unit):
         if isinstance(value,float):
             if is_almost_integer(value):
-                if is_almost_one(value):
+                if is_almost_one(value) and unit is not QU.R:
                     return ''
+                elif is_almost_one(-value) and unit is not QU.R:
+                    return '-'
                 else:
                     return str(round(value))
             else: 
@@ -56,52 +60,14 @@ class QuaternionElement:
         else:
             return str(value)   
     def __str__(self):
-        return f'{self.__display_value(self.value, self.unit)}{quaternion_unit_str(self.unit)}'
+        if is_almost_zero(self.value):
+            return '0'
+        else:
+            return f'{self.__display_value(self.value, self.unit)}{quaternion_unit_str(self.unit)}'
     def __mul__(self, qe2: QuaternionElement)->QuaternionElement:
         multipliers=[[1,1,1,1], [1,-1,1,-1], [1,-1,-1,1], [1,1,-1,-1]]
         result_unit = [[QU.R, QU.i, QU.j, QU.k], [QU.i, QU.R, QU.k, QU.j], [QU.j, QU.k, QU.R, QU.i], [QU.k, QU.j, QU.i, QU.R]]
         return QuaternionElement(multipliers[self.unit][qe2.unit]*self.value*qe2.value, result_unit[self.unit][qe2.unit])
-
-for qu in QuaternionUnit:
-    qe = QuaternionElement(1, qu)
-    print(f'{str(qe)}')
-for qu1 in QuaternionUnit:
-    for value1 in [-math.pi, -2, -1, 0, 1, 2, math.pi]:
-        for qu2 in QuaternionUnit:
-#             for value2 in [-math.pi, -2, -1, 0, 1, 2, math.pi]:                 
-            qe1 = QuaternionElement(value1, qu1)
-            qe2 = QuaternionElement(1.0, qu2)
-            print(f'{qe1}*{qe2} =  {qe1*qe2}')
-
-
-def quaternion_string(value: float, qu: QuaternionUnit)->str:
-    def display_value(value):
-        if isinstance(value,float):
-            if is_almost_integer(value):
-                if is_almost_one(value):
-                    return ''
-                else:
-                    return str(round(value))
-            else: 
-                return f'{value:.03f}'.rstrip('0')
-        elif isinstance(value, np.int32) and qu is not qu.R:
-            if value == 1:
-                return ''
-            elif value == -1:
-                return '-'
-            else:
-                return str(value)            
-        else:
-            return str(value)   
-    return f'{display_value(value)}{quaternion_unit_str(qu)}'
-
-def quaternion_multiplication_str(q1: Quaternion, q2: Quaternion, qu1: QuaternionUnit, qu2: QuaternionUnit)->str:
-    result_index= [[QU.R, QU.i, QU.j, QU.k],
-                   [QU.i, QU.R, QU.k, QU.j],
-                   [QU.j, QU.k, QU.R, QU.i],
-                   [QU.k, QU.j, QU.i, QU.R]]
-    multipliers=[[1,1,1,1], [1,-1,1,-1], [1,-1,-1,1], [1,1,-1,-1]]
-    return quaternion_string(multipliers[qu1][qu2] * q1[qu1] * q2[qu2], result_index[qu1][qu2])
 
 class Quaternion:
     def __init__(self, a:float,b:float,c:float,d:float):
@@ -121,20 +87,20 @@ class Quaternion:
     def conjugate(self)->Quaternion:
         return Quaternion(self.w,-self.x,-self.y,-self.z)
     def __str__(self):
-        def join_value(value, qu, first)->str:            
-            def sign(value:float)->str:
-                plusmin=['-', '+']
-                return plusmin[1] if value>=0 else plusmin[0]
-            if is_almost_zero(value):
-                return ''            
-            elif first:
-                return quaternion_string(value,qu)
-            else:
-                return f' {sign(value)} ' + quaternion_string(abs(value),qu)
         result = ''
         first = True
         for qu in QU:
-            result = result + join_value(self[qu],qu,first)
+            qe = QuaternionElement(self[qu], qu)
+            qe_str = str(qe)
+            if qe_str == '0':
+                continue
+            elif qe.value > 0:
+                if not first:
+                    result = result + '+' + qe_str
+                else:
+                    result = result + qe_str
+            else:
+                result = result + qe_str
             if len(result) > 0:
                 first = False
         if not result:
@@ -142,8 +108,6 @@ class Quaternion:
         return result
     def all_close(self, q2: Quaternion):
         return np.allclose(self._q, q2._q)
-    def __repr__(self):
-        return '+'.join(quaternion_string(self[i],i) for i in range(4))
     def __eq__(self, q2: Quaternion)->bool:
         if not isinstance(q2, Quaternion):
             return False
@@ -199,6 +163,7 @@ class PointQuaternion(Quaternion):
         return [qr_p_qrT[qu] for qu in [QU.i,QU.j,QU.k]]
 
 class QuaternionTable:
+# presents quaternion multiplication in a (pandas) table/DataFrame
     def __init__(self, q1: Quaternion, q2: Quaternion):
         self.table  = self._create_table(q1,q2)
         self.result = q1*q2
@@ -209,9 +174,8 @@ class QuaternionTable:
         for qu1 in QU:
             row=[]
             for qu2 in QU:
-                row.append(quaternion_multiplication_str(q1, q2, qu1, qu2))
+                row.append(str(QuaternionElement(q1[qu1], qu1) * QuaternionElement(q2[qu2], qu2)))
             data.append(row)
-        index = [quaternion_string(q1[qu],qu) for qu in QU]
-        columns = [quaternion_string(q2[qu],qu) for qu in QU]
+        index = [str(QuaternionElement(q1[qu1], qu1)) for qu1 in QU]
+        columns = [str(QuaternionElement(q2[qu2], qu2)) for qu2 in QU]
         return pd.DataFrame(data=data, index=index, columns=columns)
-
