@@ -84,8 +84,8 @@ class VectorLine:
         else:
             return np.array([1,-self.R[0]/self.R[1]])
     def line_intersection(self, VL: VectorLine)->np.array:
-        matrix = np.array([[-VL.R[i], self.R[i]] for i in range(2)])
-        solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(2)]))
+        matrix = np.array([[-VL.R[i], self.R[i]] for i in range(self.dim())])
+        solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(self.dim())]))
         return VL.V(solution[0])
 
 

@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import pytest
-from quaternion import QU, PointQuaternion, Quaternion, QuaternionException, RotationQuaternion
+from quaternion import QU, PointQuaternion, Quaternion, QuaternionException, QuaternionTable, RotationQuaternion
 from transformations import Axis, AxisRotation, axis_rotation_matrix, multiple_rotation_matrix
 
 TESTQ = [{'q': [1,2,3,4], 's':'1+2i+3j+4k'},{'q':[1,0,3,4], 's':'1+3j+4k'}, {'q':[1,2,0,4], 's':'1+2i+4k'}, {'q':[1,2,3,0], 's':'1+2i+3j'}, {'q':[0,0,0,0], 's':'0'}, {'q':[1,0,0,0], 's':'1'}, {'q':[0,1,0,0], 's':'i'}, 
@@ -40,11 +40,11 @@ def test_index_invalid():
     with pytest.raises(QuaternionException):
         q[4]
 
-def squeeze(s):
+def remove_white_space(s):
     return "".join(s.split())
 
 def _test_str(tq):
-    assert squeeze(str(Q(tq)))==tq['s']
+    assert remove_white_space(str(Q(tq)))==tq['s']
 def test_str():
     for tq in TESTQ:
         _test_str(tq)
@@ -172,3 +172,13 @@ def test_point_quaternion_transform_xyz():
     _test_point_quaternion_transform_xyz([AxisRotation(Axis.x,60), AxisRotation(Axis.z, 40), AxisRotation(Axis.y, 50)], 96.5925037, [ 0.7380231, 0.6682522, 0.0935997 ], [1,2,3])
     _test_point_quaternion_transform_xyz([AxisRotation(Axis.y,44), AxisRotation(Axis.z, 55), AxisRotation(Axis.x, 33)], 66.2077347, [ 0.1240108, 0.3607056, 0.9243986 ], [1,2,3])
     _test_point_quaternion_transform_xyz([AxisRotation(Axis.y,44), AxisRotation(Axis.x, 33), AxisRotation(Axis.z, 55)], 84.6346987, [ 0.1006029, 0.6538431, 0.7499121 ], [1,2,3])
+
+def _test_quaternion_table(q1, q2: Quaternion):
+    QT = QuaternionTable(q1, q2)
+    assert QT.result == q1*q2
+    for row in range(4):
+        for col in range(4):
+            assert QT.table[row][col] == q1[row]*q2[col]
+
+def test_quaternion_table():
+    _test_quaternion_table(Quaternion(1,2,3,4), Quaternion(0,-1,-1,2))

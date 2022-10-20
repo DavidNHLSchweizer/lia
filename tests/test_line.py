@@ -184,17 +184,39 @@ def test_angles():
     _test_angle(LV1, VectorLine([42,42], [0, 1]), 90)
     _test_angle(LV1, VectorLine([42,42], [-.5*math.sqrt(2), .5*math.sqrt(2)]), 135)
     _test_angle(LV1, VectorLine([42,42], [-1, 0]), 180)
-def _test_normal_vector(R):
+def _test_normal_vector2D(R):
     LV = VectorLine([1,1],R)
     NV = LV.normal_vector()
     assert np.linalg.norm(NV) > 0
     assert round(np.inner(NV, LV.R),PRECISION) == 0
-def test_normal_vector_normal():
-    for R in [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]:
-        _test_normal_vector(R)
-def test_normal_vector_vertical():
-    _test_normal_vector([1,0])
-
+def _random_vector(dim):
+    result = []
+    for _ in range(dim):
+        result.append(random.randrange(-10,10))
+    return result
+VECT_VALUES_2D = [[-2,-1],[-1.5,+2],[-1.25,-1],[.5,-.333], [0,.333],[.5,1],[1.25,1.5],[2,-1],[3,-1.4]]
+def test_normal_vector_normal2D():
+    for R in VECT_VALUES_2D:
+        _test_normal_vector2D(R)
+def test_normal_vector_vertical2D():
+    _test_normal_vector2D([1,0])
+def _test_intersection(L1, L2: VectorLine):
+    print(f'{L1}   {L2}')
+    IS1 = L1.line_intersection(L2)
+    IS2 = L2.line_intersection(L1)
+    assert np.allclose(IS1, IS2)
+    assert L1.is_on_line(IS1)
+    assert L2.is_on_line(IS1)
+    assert L1.is_on_line(IS2)
+    assert L2.is_on_line(IS2)
+def test_intersection2D():
+    for R1 in VECT_VALUES_2D:
+        L1 = VectorLine(_random_vector(2), R1)
+        for R2 in VECT_VALUES_2D:
+            if R1 is not R2:
+                L2 = VectorLine(_random_vector(2), R2)
+                _test_intersection(L1, L2)
+        
 #--- lineconvertor tests
 def test_init_line_convertor():
     LC = LineConvertor()
