@@ -3,6 +3,7 @@ import numpy as np
 import math
 
 PRECISION = 7
+EPSILON   = 1*math.pow(10,-PRECISION)
 
 LAMBDA  = '\u03BB' # λ
 MU      = '\u00B5' # μ

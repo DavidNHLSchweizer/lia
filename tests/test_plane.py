@@ -1,5 +1,7 @@
 from cmath import exp
 import itertools
+import math
+import random
 from re import L
 import pytest
 import numpy as np
@@ -102,7 +104,22 @@ def _test_is_parallel(a,b,c,d,px,py,pz):
 def test_is_parallel():
     for tpp in TEST_PLANES: 
         _test_is_parallel(tpp['a'],tpp['b'],tpp['c'],tpp['d'], tpp['px'],tpp['py'],tpp['pz'])
-     
+
+def _test_plane_equivalent(P1, P2: Plane, expected=True):
+    assert P1.equivalent(P2) == expected
+    assert P2.equivalent(P1) == expected
+
+def test_plane_equivalent_factor():
+    for tp in TEST_PLANES:
+        P = Plane(tp['a'],tp['b'],tp['c'],tp['d'])
+        for factor in [-math.pi, -2, -1, -0.1, 0.1, 1, 2, math.pi]:
+            _test_plane_equivalent(P, Plane(factor*tp['a'],factor*tp['b'],factor*tp['c'],factor*tp['d']))  
+def test_plane_equivalent_factor_false():
+    for tp in TEST_PLANES:
+        P = Plane(tp['a'],tp['b'],tp['c'],tp['d'])
+        for factor in [-math.pi, -2, -1, -0.1, 0.1, 1, 2, math.pi]:
+            _test_plane_equivalent(P, Plane(factor*tp['a']+.01, factor*tp['b'],factor*tp['c'],factor*tp['d']-0.01), False)  
+
 #plane vector tests
 def _test_init_plane_vector(P, R1, R2):
     VP = VectorPlane(P, R1, R2)
@@ -195,11 +212,11 @@ def _test_line_intersection_vector(VP: VectorPlane, VL: VectorLine):
         assert VP.is_on_plane(intersection)
         assert VL.is_on_line(intersection)
     else:
-        assert np.inner(VP.normal_vector(),VL.R) == 0
+        assert abs(np.inner(VP.normal_vector(),VL.R)) < PRECISION
 
 def test_line_intersection_vector():
     lines = []
-    for P,R in  zip(_TEST_VECTORS_3D(10), _TEST_VECTORS_3D(10)):
+    for P,R in zip(_TEST_VECTORS_3D(10), _TEST_VECTORS_3D(10)):
         lines.append(VectorLine(P,R))
     for tp in TEST_PLANES:
         VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])
@@ -208,4 +225,62 @@ def test_line_intersection_vector():
         _test_line_intersection_vector(VP, VectorLine([VP.P[0]+1,VP.P[1]+1,VP.P[2]+1], VP.R1))      
         _test_line_intersection_vector(VP, VectorLine([VP.P[0]+1,VP.P[1]+1,VP.P[2]+1], VP.R2))      
 
-    #TODO: test plane convertor code
+def _test_vector_plane_equivalent(VP1, VP2: VectorPlane, expected=True):
+    assert VP1.equivalent(VP2) == expected
+    assert VP2.equivalent(VP1) == expected
+
+def test_vector_plane_equivalent_factor():
+    for tp in TEST_PLANES:
+        VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])
+        for factor in [-math.pi, -2, -1, -0.1, 0.1, 1, 2, math.pi]:
+            _test_vector_plane_equivalent(VP, VectorPlane(tp['P'], factor*np.array(tp['R1']), factor*np.array(tp['R2'])))  
+
+def test_vector_plane_equivalent_switch():
+    for tp in TEST_PLANES:
+        VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])
+        for factor in [-math.pi, -2, -1, -0.1, 0.1, 1, 2, math.pi]:
+            _test_vector_plane_equivalent(VP, VectorPlane(tp['P'], factor*np.array(tp['R2']), factor*np.array(tp['R1'])))  
+
+def test_vector_plane_equivalent_false_vector():
+    def tilt_vector(VP, V):
+        n = np.array(VP.normal_vector())
+        v = V.copy()
+        while round(np.inner(n,v),PRECISION) == 0:
+            v[0] = v[0]+1.1 * random.random()
+            v[1] = v[1]-1.1 * random.random()
+            v[2] = v[2]+1.1 * random.random()
+        return v
+    for tp in TEST_PLANES:
+        VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])        
+        _test_vector_plane_equivalent(VP, VectorPlane(np.array(tp['P']), tilt_vector(VP, np.array(tp['R1'])), np.array(tp['R2'])), False)  
+
+def test_vector_plane_equivalent_false_point():
+    def shift_vector(VP, P):
+        p = P.copy()
+        while VP.is_on_plane(p):
+            p[0] = p[0]+1.1 * random.random()
+            p[1] = p[1]-1.1 * random.random()
+            p[2] = p[2]+1.1 * random.random()
+        return p
+    for tp in TEST_PLANES:
+        VP = VectorPlane(tp['P'], tp['R1'], tp['R2'])        
+        _test_vector_plane_equivalent(VP, VectorPlane(shift_vector(VP, np.array(tp['P'])), np.array(tp['R1']), np.array(tp['R2'])), False)  
+
+#plane convertor tests
+def _test_plane_convertor_vector_to_plane(VP: VectorPlane, expected: Plane):
+    P = PlaneConvertor().plane_from_vector_plane(VP)
+    assert P.equivalent(expected)
+    assert expected.equivalent(P)
+
+def test_plane_convertor_vector_to_plane():
+    for tp in TEST_PLANES:
+        _test_plane_convertor_vector_to_plane(VectorPlane(tp['P'], tp['R1'], tp['R2']), Plane(tp['a'],tp['b'],tp['c'],tp['d']))
+
+def _test_plane_convertor_plane_to_vector(P: Plane, expected: VectorPlane):
+    VP = PlaneConvertor().vector_plane_from_plane(P)
+    assert VP.equivalent(expected)
+    assert expected.equivalent(VP)
+
+def test_plane_convertor_plane_to_vector():
+    for tp in TEST_PLANES:
+        _test_plane_convertor_plane_to_vector(Plane(tp['a'],tp['b'],tp['c'],tp['d']), VectorPlane(tp['P'], tp['R1'], tp['R2']))

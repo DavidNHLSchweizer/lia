@@ -1,6 +1,7 @@
 from __future__ import annotations
+from pickle import FALSE
 import numpy as np
-from lia import LAMBDA, MU, Axis, angle, PRECISION
+from lia import EPSILON, LAMBDA, MU, Axis, angle, PRECISION
 from line import VectorLine
 
 class PlaneInvalidException(Exception):
@@ -52,7 +53,20 @@ class Plane:
             case Axis.z: return round(self.c,PRECISION) == 0
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
-    
+    def equivalent(self, P: Plane)->bool:
+        if P.a:
+            scale = self.a / P.a
+        elif P.b:
+            scale = self.b / P.b
+        elif P.c:
+            scale = self.c / P.c
+        else: 
+            scale = 1 
+        return abs(self.a - scale*P.a) < EPSILON and\
+               abs(self.b - scale*P.b) < EPSILON and\
+               abs(self.c - scale*P.c) < EPSILON and\
+               abs(self.d - scale*P.d) < EPSILON
+
 class VectorPlane:
     def __init__(self, P:list[float], R1:list[float], R2:list[float]):
         #V = P + λ.R1 + μ.R2
@@ -109,8 +123,7 @@ class VectorPlane:
             else:
                 return None
         except:
-            return None       
-        
+            return None               
     def line_intersection(self, VL: VectorLine)->np.array:
         matrix = np.array([[-VL.R[i], self.R1[i], self.R2[i]] for i in range(3)])
         try:
@@ -118,6 +131,25 @@ class VectorPlane:
             return VL.V(solution[0])
         except:
             return None
+    def equivalent(self, VP2: VectorPlane)->bool:
+        def vector_equivalent(V1, V2):
+            if np.allclose(V1, V2):
+                return True
+            scale = None
+            for i in range(len(V2)):
+                if round(V2[i],PRECISION) == 0:
+                    if round(V1[i], PRECISION) != 0:
+                        return False
+                    else:
+                        continue
+                elif round(V1[i],PRECISION) == 0:
+                    return False
+                if not scale:
+                    scale = V1[i]/V2[i]
+                elif abs(scale - V1[i]/V2[i]) > EPSILON:
+                    return False
+            return True
+        return vector_equivalent(self.normal_vector(), VP2.normal_vector()) and self.is_on_plane(VP2.P)
 
 class PlaneConvertor:
     def vector_plane_from_plane(self, P: Plane)->VectorPlane:
