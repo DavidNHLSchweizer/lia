@@ -53,6 +53,10 @@ class Plane:
             case Axis.z: return round(self.c,PRECISION) == 0
     def is_on_plane(self, x: float, y: float, z: float)->bool:
         return round(self.a*x+self.b*y+self.c*z - self.d, PRECISION) == 0
+    '''
+    Plane.equivalent
+    A different plane is equivalent to this plane if the a,b,c and d (possibly multiplied with a constant) are equal withing compunting errors
+    '''
     def equivalent(self, P: Plane)->bool:
         if P.a:
             scale = self.a / P.a
@@ -131,6 +135,11 @@ class VectorPlane:
             return VL.V(solution[0])
         except:
             return None
+    '''
+    equivalent
+    A vectorplane VP2 is equivalent to this plane if it has the same (within computing errors) normal vector (possibly multiplied with a factor) 
+    AND the point VP2.P is on this plane.
+    '''
     def equivalent(self, VP2: VectorPlane)->bool:
         def vector_equivalent(V1, V2):
             if np.allclose(V1, V2):
