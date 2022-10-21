@@ -162,14 +162,9 @@ class PointQuaternion(Quaternion):
         qr_p_qrT = rq * p_qrT 
         return [qr_p_qrT[qu] for qu in [QU.i,QU.j,QU.k]]
 
-class QuaternionTable:
-# presents quaternion multiplication in a (pandas) table/DataFrame
-    def __init__(self, q1: Quaternion, q2: Quaternion):
-        self.table  = self._create_table(q1,q2)
-        self.result = q1*q2
-    def __str__(self):
-        return str(self.table)
-    def _create_table(self, q1: Quaternion, q2: Quaternion)->pd.DataFrame:
+class QuaternionTable(pd.DataFrame):
+# presents quaternion multiplication as a (pandas) table/DataFrame
+    def __init__(self, q1: Quaternion, q2: Quaternion, **kwargs):
         data=[]
         for qu1 in QU:
             row=[]
@@ -178,4 +173,6 @@ class QuaternionTable:
             data.append(row)
         index = [str(QuaternionElement(q1[qu1], qu1)) for qu1 in QU]
         columns = [str(QuaternionElement(q2[qu2], qu2)) for qu2 in QU]
-        return pd.DataFrame(data=data, index=index, columns=columns)
+        super().__init__(data=data, index=index, columns=columns, **kwargs)    
+        self.result = q1*q2
+    

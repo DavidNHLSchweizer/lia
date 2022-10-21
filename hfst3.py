@@ -3,26 +3,26 @@ import numpy as np
 from line import Line
 
 from plane import Plane
-from transformations import Axis, axis_rotation_matrix, line_projection_matrix, plane_projection_matrix
+from transformations import Axis, AxisRotation, axis_rotation_matrix, line_projection_matrix, plane_projection_matrix
 
 def _projectie_vlak(P: Plane, msg, factor=1):
     print(f'{msg}\nTransformatiematrix:\n{factor*plane_projection_matrix(P)}')
 def _print_rotation_axis(axis, degrees, clockwise, check_value, msg):
-    matrix = axis_rotation_matrix(axis, degrees, clockwise)
+    matrix = axis_rotation_matrix(AxisRotation(axis, degrees, clockwise))
     print(f'{msg}\nsin{degrees}={math.sin(math.radians(degrees)):.4f}, cos{degrees}={math.cos(math.radians(degrees)):.4f} Transformatiematrix:\n{np.round(matrix,4)}\ncontrole: {np.dot(matrix, check_value)}')
 
 def vb_3_1():
     A = np.array([[3,-1,2],[4,-5,0]])
     B=np.array([[-4,5],[1,7],[-2,6]])
-    print(f'Voorbeeld 3.1 (vermenigvuldiging):A=\n{A}\nB=\n{B}\nA.B\n{np.dot(A,B)}')
+    print(f'Voorbeeld 3.1 (vermenigvuldiging):\nA=\n{A}\nB=\n{B}\nA.B\n{np.dot(A,B)}')
 def vb_3_2():
     A = np.array([[3,-1,2],[4,-5,0]])
     B=np.array([[-4,5],[1,7],[-2,6]])
-    print(f'Voorbeeld 3.2 (vermenigvuldiging/ABBA):A=\n{A}\nB=\n{B}\nB.A\n{np.dot(B,A)}\nA.B\n{np.dot(A,B)}')
+    print(f'Voorbeeld 3.2 (vermenigvuldiging/ABBA):\nA=\n{A}\nB=\n{B}\nB.A=\n{np.dot(B,A)}\nA.B=\n{np.dot(A,B)}')
 def vb_3_3():
     A = np.array([[0,2,-1],[3,0,0], [1,1,1]])
     v = np.array([3,2,-1])
-    print(f'Voorbeeld 3.3 (matrix-vector vermenigvuldiging):A=\n{A}\nv={v}\nA.v={np.dot(A,v)}')
+    print(f'Voorbeeld 3.3 (matrix-vector vermenigvuldiging):\nA=\n{A}\nv={v}\nA.v={np.dot(A,v)}')
 def vb_3_4_1():
     cos60 = math.cos(math.radians(60))
     sin60 = math.sin(math.radians(60))

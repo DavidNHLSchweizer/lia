@@ -230,7 +230,7 @@ def _test_quaternion_table(q1, q2: Quaternion):
     assert QT.result == q1*q2
     for row in QuaternionUnit:
         for col in QuaternionUnit:           
-            assert QT.table.values[row][col] == str(QuaternionElement(q1[row],row) * QuaternionElement(q2[col], col))
+            assert QT.values[row][col] == str(QuaternionElement(q1[row],row) * QuaternionElement(q2[col], col))
 
 def test_quaternion_table():
     _test_quaternion_table(Quaternion(1,2,3,4), Quaternion(0,-1,-1,2))
