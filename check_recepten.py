@@ -1,9 +1,11 @@
 import math
 import numpy as np
+import pandas as pd
 from line import Line, LineConvertor, VectorLine
 from plane import Plane, VectorPlane
 from quaternion import PointQuaternion, Quaternion, QuaternionTable, RotationQuaternion
-from transformations import AffineMatrix, Axis, TranslationMatrix, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix, rotation_matrix_2d
+from transformations import AffineMatrix, Axis, AxisRotation, TranslationMatrix, axis_rotation_matrix, line_projection_matrix, plane_mirror_matrix, plane_projection_matrix, rotation_matrix_2d
+
 
 def _print_projectie_line(L: Line, msg, factor=1):
     print(f'{msg}\nTransformatiematrix projectie:\n{factor*line_projection_matrix(L)}')
@@ -12,7 +14,7 @@ def _print_projectie_vlak(P: Plane, msg, factor=1):
     print(f'{msg}\nTransformatiematrix projectie:\n{factor*plane_projection_matrix(P)}')
 
 def _print_rotation_axis(axis, degrees, clockwise, msg):
-    matrix = axis_rotation_matrix(axis, degrees, clockwise)
+    matrix = axis_rotation_matrix(AxisRotation(axis, degrees, clockwise))
     print(f'{msg}\nTransformatiematrix rotatie:\n{matrix}')
 
 def _mirror_vlak(P: Plane, msg, factor=1):
@@ -164,3 +166,44 @@ snijpunt=vlak_c.line_intersection(VectorLine(P, c))
 print(snijpunt)
 distance=np.linalg.norm(snijpunt-P)
 print(f'opgave 1c: afstand: {distance:.3f}')
+
+print('6.6.1')
+q1 = Quaternion(1,2,-1,3)
+q2 = Quaternion(2,1,-2,4)
+print(q1*q2)
+print(QuaternionTable(q1,q2))
+
+def _quaternion_rotatie(q1, q2, msg, check_result, check_table):
+    result = q1*q2
+    print(f'{msg}: ({q1}) * ({q2})\nresultaat {result}  (check: {check_result})\ntable:\n{QuaternionTable(q1, q2)}\ncheck:\n{check_table}')
+    return result
+
+def voorbeeld_6_12_1():
+    p=PointQuaternion([-2,3,6])
+    qr = RotationQuaternion(80, [-1,2,2])
+    # print(qr, qr.unit_vector)
+    cos40=math.cos(math.radians(40))
+    sin40=math.sin(math.radians(40))
+    coscos40 = cos40*cos40
+    sinsin40 = sin40*sin40
+    sincos40 = sin40*cos40
+    print('Voorbeeld 6-12-1')
+    tem = _quaternion_rotatie(p, qr.conjugate(), 'pqr*', Quaternion(20/3*sin40, -2*cos40+2*sin40, 3*cos40+2/3*sin40, 6*cos40+1/3*sin40),
+                              pd.DataFrame( [['0','0','0','0'],
+                                    [f'{-2*cos40:.3f}i', f'{2/3*sin40:.3f}', f'{4/3*sin40:.3f}k', f'{-4/3*sin40:.3f}j'],
+                                    [f'{3*cos40:.3f}j', f'{-sin40:.3f}k', f'{2*sin40:.3f}', f'{-2*sin40:.3f}i'],
+                                    [f'{6*cos40:.3f}k', f'{2*sin40:.3f}j', f'{4*sin40:.3f}i', f'{4*sin40:.3f}']],
+                                    columns = [f'{cos40:.3f}', f'{1/3*sin40:.3f}i', f'{-2/3*sin40:.3f}j', f'{-2/3*sin40:.3f}k'], index = ['0', '-2i', '3j', '6k']
+                                    ))
+    
+    _quaternion_rotatie(qr, tem, 'qr(pqr*)', Quaternion(0,-22/9*sinsin40+4*sincos40-2*coscos40,53/9*sinsin40+4/3*sincos40+3*coscos40,26/9*sinsin40+2/3*sincos40+6*coscos40), 
+                              pd.DataFrame( [[f'{20/3*sincos40:.3f}', f'{(-2*coscos40+2*sincos40):.3f}i', f'{(3*coscos40+2/3*sincos40):.3f}j', f'{(6*coscos40+1/3*sincos40):.3f}k'],
+                                    [f'{-20/9*sinsin40:.3f}i', f'{-2/3*sincos40+2/3*sinsin40:.3f}', f'{-(sincos40+2/9*sinsin40):.3f}k', f'{2*sincos40+1/9*sinsin40:.3f}j'],
+                                    [f'{40/9*sinsin40:.3f}j',  f'{4/3*sincos40-4/3*sinsin40:.3f}k', f'{-(2*sincos40+4/9*sinsin40):.3f}', f'{4*sincos40+2/9*sinsin40:.3f}i'],
+                                    [f'{40/9*sinsin40:.3f}k',  f'{-4/3*sincos40+4/3*sinsin40:.3f}j', f'{-(2*sincos40+4/9*sinsin40):.3f}i', f'{-4*sincos40-2/9*sinsin40:.3f}']],
+                                    columns = [f'{20/3*sin40:.3f}', f'{(-2*cos40 + 2* sin40):.3f}i', f'{(3*cos40 + 2/3* sin40):.3f}j', f'{(6*cos40 + 1/3* sin40):.3f}k'], 
+                                    index = [f'{cos40:.3f}', f'{-1/3*sin40:.3f}i', f'{2/3*sin40:.3f}j', f'{2/3*sin40:.3f}k']
+                                    ))
+    
+
+voorbeeld_6_12_1()

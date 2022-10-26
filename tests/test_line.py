@@ -221,17 +221,16 @@ def test_intersection2D():
 def test_init_line_convertor():
     LC = LineConvertor()
     assert LC
-def _test_line_convertor_vector_from_line(a, b, expected_V1, expected_V2):
+def _test_line_convertor_vector_from_line(a, b, expected_line):
     LC = LineConvertor()
     line = Line(a,b)
     vector = LC.vector_line_from_line(line)
-    assert np.array_equiv(vector.P, expected_V1)
-    assert np.array_equiv(vector.R, expected_V2)
+    assert vector.equivalent(expected_line)
 def test_line_convertor_vector_from_line():
-    _test_line_convertor_vector_from_line(1,1, [-1,0], [1,1])
-    _test_line_convertor_vector_from_line(-1,1, [1,0], [1,-1])
-    _test_line_convertor_vector_from_line(2.5,3, [-1.2,0], [1,2.5])
-    _test_line_convertor_vector_from_line(0,1, [0,1], [1,0])
+    _test_line_convertor_vector_from_line(1,1, VectorLine([-1,0], [1,1]))
+    _test_line_convertor_vector_from_line(-1,1, VectorLine([1,0], [1,-1]))
+    _test_line_convertor_vector_from_line(2.5,3, VectorLine([-1.2,0], [1,2.5]))
+    _test_line_convertor_vector_from_line(0,1, VectorLine([0,1], [1,0]))
 def test_line_convertor_vector_from_vline():
     LC = LineConvertor()
     line = VerticalLine(42)

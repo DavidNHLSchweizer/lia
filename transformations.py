@@ -107,24 +107,3 @@ class TranslationMatrix(AffineMatrix):
         lastcol = len(vector)
         for row, value in enumerate(vector):
             self.matrix[row][lastcol] = value
-
-# M = plane_mirror_matrix(Plane(2,-1,3,0))
-# print(M*14)
-# AM = AffineMatrix(M)
-# print(14*AM.matrix)
-# print(AM.transform([4,6,-1]))
-# print(14*AM.transform([4,6,-1]))
-# # TM = TranslationMatrix([5,6])
-# # print(TM.matrix)
-# # print(TM.transform([1,2]))
-
-# TM = TranslationMatrix([5,6,2])
-# print(TM.matrix)
-
-
-# TM = TranslationMatrix([4,5,6])
-# print(TM.matrix)
-# print(TM.transform([1,2,3]))
-
-M = multiple_rotation_matrix([AxisRotation(Axis.z,40), AxisRotation(Axis.y, 50), AxisRotation(Axis.x, 60)])
-print(M)

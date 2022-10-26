@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pickle import FALSE
 import numpy as np
-from lia import EPSILON, LAMBDA, MU, Axis, angle, PRECISION
+from lia import EPSILON, LAMBDA, MU, Axis, angle, PRECISION, vector_equivalent
 from line import VectorLine
 
 class PlaneInvalidException(Exception):
@@ -141,23 +141,6 @@ class VectorPlane:
     AND the point VP2.P is on this plane.
     '''
     def equivalent(self, VP2: VectorPlane)->bool:
-        def vector_equivalent(V1, V2):
-            if np.allclose(V1, V2):
-                return True
-            scale = None
-            for i in range(len(V2)):
-                if round(V2[i],PRECISION) == 0:
-                    if round(V1[i], PRECISION) != 0:
-                        return False
-                    else:
-                        continue
-                elif round(V1[i],PRECISION) == 0:
-                    return False
-                if not scale:
-                    scale = V1[i]/V2[i]
-                elif abs(scale - V1[i]/V2[i]) > EPSILON:
-                    return False
-            return True
         return vector_equivalent(self.normal_vector(), VP2.normal_vector()) and self.is_on_plane(VP2.P)
 
 class PlaneConvertor:

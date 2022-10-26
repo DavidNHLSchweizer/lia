@@ -1,6 +1,6 @@
 from __future__ import annotations
 import numpy as np
-from lia import LAMBDA, angle, PRECISION
+from lia import LAMBDA, angle, PRECISION, normal_vector, vector_equivalent
 
 class LineInvalidException(Exception):
     pass
@@ -33,6 +33,9 @@ class Line(LineBase):
         return (y-self.b)/self.a
     def is_on_line(self, x: float, y: float)->bool:
         return self.y(x) == y 
+    def equivalent(self, L2: Line)->bool:
+        return round(self.a, PRECISION) == round(L2.a, PRECISION) and round(self.b, PRECISION) == round(L2.b, PRECISION)
+
 class VerticalLine(LineBase):
     #x = b    
     def __init__(self, b: float):
@@ -45,6 +48,8 @@ class VerticalLine(LineBase):
         return self.b
     def is_on_line(self, x: float, y: float)->bool:
         return x == self.b
+    def equivalent(self, L2: Line)->bool:
+        return round(self.b, PRECISION) == round(L2.b, PRECISION)
 
 class VectorLine:
     #V = P + λ.R
@@ -79,10 +84,9 @@ class VectorLine:
     def angle(self, LV2: VectorLine, degrees = True)->float:
         return angle(self.R, LV2.R, degrees)
     def normal_vector(self)->np.array:
-        if self.R[1] == 0:
-            return np.array([0,1])
-        else:
-            return np.array([1,-self.R[0]/self.R[1]])
+        return normal_vector(self.R)
+    def equivalent(self, L2: VectorLine):
+        return vector_equivalent(self.R, L2.R) and self.is_on_line(L2.P)
     def line_intersection(self, VL: VectorLine)->np.array:
         matrix = np.array([[-VL.R[i], self.R[i]] for i in range(self.dim())])
         solution = np.linalg.solve(matrix, np.array([VL.P[i]-self.P[i] for i in range(self.dim())]))
@@ -95,7 +99,7 @@ class LineConvertor:
         elif l.a == 0:
             return VectorLine([0,l.b], [1,0])
         else:
-            return VectorLine([-l.b/l.a,0], [1,l.a])
+            return VectorLine([0,l.b], [1,l.a])
     def line_from_vector_line(self, VL: VectorLine)->LineBase:
         if VL.R[0] == 0:
             return VerticalLine(VL.P[0])
