@@ -25,6 +25,7 @@ _print_rotation_axis(Axis.z,36,False, 'voorbeeld 3.6.5')
 _print_rotation_axis(Axis.x,21,True, 'voorbeeld 3.6.6')
 _print_projectie_line(Line(2,0), 'Voorbeeld 3.9', 5)
 _print_projectie_vlak(Plane(2,-1,3,0), 'voorbeeld 3.11.1', 14)
+
 _mirror_vlak(Plane(2,-1,3,0), 'voorbeeld 4.2.1', 14)
 
 def voorbeeld_4_27_2():

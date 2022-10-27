@@ -18,6 +18,16 @@ def line_projection_matrix(L: Line)->np.array:
     p2 = line_projection([0,1], L)
     return np.array([p1,p2])
 
+def line_mirror(X: np.array, L: Line)->np.array:
+    projection=line_projection(X, L)
+    return np.array([2*projection[i]-X[i] for i in range(2)])
+
+def line_mirror_matrix(L: Line)->np.array:
+    p1 = line_mirror([1,0], L)
+    p2 = line_mirror([0,1], L)
+    print(f'{L}:!{np.round(5*p1,3)}   {np.round(5*p2,3)}')
+    return np.array([p1,p2])
+
 def plane_projection(X: np.array, P: Plane)->np.array:
     n = P.normal_vector()
     return PlaneConvertor().vector_plane_from_plane(P).line_intersection(VectorLine(X,[n[i]for i in range(len(n))]))
