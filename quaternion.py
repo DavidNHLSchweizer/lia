@@ -158,9 +158,11 @@ class PointQuaternion(Quaternion):
     def __init__(self, point: list[float]):
         super().__init__(0, point[0], point[1], point[2])
     def transform(self, rq: RotationQuaternion)->list[float]:
-        p_qrT = self * rq.conjugate()
-        qr_p_qrT = rq * p_qrT 
-        return [qr_p_qrT[qu] for qu in [QU.i,QU.j,QU.k]]
+        return PointQuaternion.to_point(rq * self * rq.conjugate())
+    @staticmethod
+    def to_point(q: Quaternion)->list[float]:
+        return [q[qu] for qu in [QU.i,QU.j,QU.k]]
+
 
 class QuaternionTable(pd.DataFrame):
 # presents quaternion multiplication as a (pandas) table/DataFrame
