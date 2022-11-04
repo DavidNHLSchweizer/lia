@@ -1,9 +1,6 @@
 import math
-import cmath
 import numpy as np
 import pandas as pd
-from line import Line, LineConvertor, VectorLine
-from plane import Plane, VectorPlane
 from quaternion import PointQuaternion, Quaternion, QuaternionTable, RotationQuaternion
 
 def vb_6_2_1():
@@ -41,14 +38,11 @@ def vb_6_6_1():
     print(f'\t{q1b}\t+\t{q2}\t= {q1b+q2}')
     print(f'\t{q1b}\t-\t{q2}\t= {q1b-q2}')
 
-
 def vb_6_8_1():
     q1 = Quaternion(1,2,-1,3)
     q2 = Quaternion(2,1,-2,4)
     print(f'Voorbeeld 6.8.1: {q1} * {q2} = {q1*q2}')
 
-
-   
 def _quaternion_rotatie(q1, q2, msg, check_result, check_table):
     result = q1*q2
     qt = QuaternionTable(q1, q2)

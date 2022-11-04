@@ -30,6 +30,7 @@ def is_almost_one(value:float)->bool:
 class QuaternionElement:
 #SUPPORT CLASS mainly for string display 
 #also supports (basic) multiplication to generate QuaternionTable
+#actual quaternion multiplication is in the Quaternion class.
     def __init__(self, value: float, unit: QuaternionUnit):
         self._value = value
         self._unit = unit
@@ -162,7 +163,6 @@ class PointQuaternion(Quaternion):
     @staticmethod
     def to_point(q: Quaternion)->list[float]:
         return [q[qu] for qu in [QU.i,QU.j,QU.k]]
-
 
 class QuaternionTable(pd.DataFrame):
 # presents quaternion multiplication as a (pandas) table/DataFrame
