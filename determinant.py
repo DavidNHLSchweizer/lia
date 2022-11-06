@@ -50,7 +50,7 @@ class Determinant:
         self.report(f'kolom {col+1} vermenigvuldigd met {factor}')
     def simplify_determinant(self)->Determinant:
         if self.dim > 2 and self._simplify_determinant():
-            print('VEREENVOUDIGING:')
+            print(f'VEREENVOUDIGING (NB: factor {self.values[0][0]:.3f} komt vanuit ontwikkeling):')
             return self.sub_determinant(0,0,self.values[0][0]).simplify_determinant()
         else:
             if is_zero(self._values[1][0]):
@@ -99,13 +99,13 @@ class Determinant:
                 row.append(self.values[r][c])
             rows.append(row)
         result = Determinant(rows, factor * self._factor)
-        result.report(f'subdeterminant vanuit {matrix_row+1},{matrix_col+1}')
+        result.report(f'subdeterminant ontwikkeld vanuit {matrix_row+1},{matrix_col+1}')
         return result
 
 def simplify_determinant(D: Determinant):
-    D.print_det('initial')
-    DE = D.simplify_determinant()
-    DE.print_det('simpled')
+    D.print_det('OORSPRONKELIJKE DETERMINANT')
+    D.simplify_determinant()
+    print('*** READY ***')
 
 # simplify_determinant(Determinant([[-8,-5,4,5],[4,2,-2,-6],[-3,7,2,-3],[-2,-4,1,3]]))
 simplify_determinant(Determinant([[3,7,-1],[4,2,0],[0,1,-2]]))

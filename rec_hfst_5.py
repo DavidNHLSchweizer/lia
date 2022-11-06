@@ -1,4 +1,5 @@
 import numpy as np
+from determinant import Determinant, simplify_determinant
 from plane import Plane
 from transformations import plane_mirror_matrix
 
@@ -47,6 +48,7 @@ def vb_5_8_2():
     _vb(np.array([[4,-1,5],[-8,0,-2], [0,2,3]]), '5.8.2 voor stap 3')
     _vb(np.array([[4,-1,5],[-8,0,-2], [8,0,13]]), '5.8.2 na stap 3')
     _vb(np.array([[-8,-2], [8,13]]), '5.8.2 na stap 4')
+    #simplify_determinant(Determinant([[3,2,1,2],[4,-1,0,5],[-2,4,2,2], [-3,0,-1,1]]))
 
 def vb_hfst_5():
     vb_5_1_2()
