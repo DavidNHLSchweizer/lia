@@ -5,6 +5,13 @@ import math
 PRECISION = 5
 EPSILON   = 1*math.pow(10,-PRECISION)
 
+def is_zero(value):
+    return  round(value, PRECISION) == 0
+
+def is_one(value):
+    return  round(value, PRECISION) == 1
+
+
 LAMBDA  = '\u03BB' # λ
 MU      = '\u00B5' # μ
 DEGREES = '\u00B0' # °
