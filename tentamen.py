@@ -27,8 +27,9 @@ def opgave1():
 def opgave2():
     print(f'\n*** OPGAVE 2 ***')
     vlak = Plane(2,-1,0,0)
+    print(f'opgave 2a:\n\tvlak: {vlak}   normaal: {vlak.normal_vector()}')
     P = plane_projection_matrix(vlak)
-    print(f'opgave 2a (*5):\n{P*5}')
+    print(f'\tmatrix:\n{P*5}')
     S = plane_mirror_matrix(vlak)
     print(f'opgave 2b (*5):\n{S*5}')
     B = np.dot(S,P)
@@ -73,4 +74,4 @@ def tentamen(select=[1,2,3,4]):
         opgave4()
 
 if __name__=='__main__':
-    tentamen([1])
+    tentamen([2])
