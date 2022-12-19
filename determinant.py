@@ -11,7 +11,10 @@ class Determinant:
     def __init__(self, matrix: np.array, factor=1):
         self._matrix = matrix
         self._dim = len(matrix)
-        self._values = matrix.copy()
+        if isinstance(matrix, np.ndarray):
+            self._values = matrix.astype(float)
+        else:
+            self._values = matrix.copy()
         self._factor = factor
     @property
     def values(self):
@@ -108,6 +111,6 @@ def simplify_determinant(D: Determinant):
     print('*** READY ***')
 
 # simplify_determinant(Determinant([[-8,-5,4,5],[4,2,-2,-6],[-3,7,2,-3],[-2,-4,1,3]]))
-simplify_determinant(Determinant([[3,7,-1],[4,2,0],[0,1,-2]]))
+# simplify_determinant(Determinant([[3,7,-1],[4,2,0],[0,1,-2]]))
 
 
