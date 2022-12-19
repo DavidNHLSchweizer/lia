@@ -90,7 +90,7 @@ def multiple_rotation_matrix(rotations: list[AxisRotation])->np.array:
     return result
 
 class AffineMatrix:
-    def __init__(self, M: np.array, copy_matrix = False):        
+    def __init__(self, M: type[np.array|AffineMatrix], copy_matrix = False):        
         if not copy_matrix:
             lastcolumn = []
             for _ in range(len(M)):
@@ -102,7 +102,10 @@ class AffineMatrix:
             lastrow.append(1)
             self.matrix = np.r_[self.matrix, [np.array(lastrow)]]
         else:
-            self.matrix = M
+            if isinstance(M, AffineMatrix):
+                self.matrix = M.matrix
+            else:
+                self.matrix = M
     def __str__(self):
         return str(self.matrix)
     def transform(self, vector: np.array)->np.array:        

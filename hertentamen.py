@@ -44,7 +44,7 @@ def opgave2():
     g = np.dot(Ta,Sa)
     C = np.dot(Pa,g)
     print (f'C=Pa*Sa*Ta\n{C}')
-    d = AffineMatrix(C.matrix, True).transform([2,-1,3])
+    d = AffineMatrix(C, True).transform([2,-1,3])
     print(d)
 
 def opgave3():
